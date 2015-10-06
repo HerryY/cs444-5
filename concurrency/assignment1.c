@@ -12,29 +12,37 @@
 #include <stdlib.h>
 #include <string.h>
 
-void *consume(void *buff);
-void *produce(void *buff);
+void consume(void *buff);
+void produce(void *buff);
+
 
 struct buffer_item {
     int number;
     int sleep_time; 
 };
 
-void *consume(void *buff){
+struct buffer_item *buffer;
 
-    return;
+void consume(void *buff){
+
+    int x = 0;
+    x = x + 1;
 }
 
-void *produce(void *buff){
+void produce(void *buff){
 
-    return;
+    int x = 1;
+    x = x + 1;
 }
 
 int main(int argc, char **argv) {
 
     pthread_t *consumer;
     pthread_t *producer;
-
-    pthread_create(consumer, NULL, consume, NULL);
+    void* consume_func = consume;
+    void* produce_func = produce;
+    
+    pthread_create(producer, NULL, produce_func, NULL);
+    pthread_create(consumer, NULL, consume_func, NULL);
     return 0;
 }

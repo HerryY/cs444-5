@@ -4,7 +4,7 @@ CFLAGS=-Wall -Wshadow -Wunreachable-code -Wredundant-decls -Wmissing-declaration
 all: assignment1
 
 assignment1: assignment1.o
-	$(CC) assignment1.o -o a1 -lpthread
+	$(CC) assignment1.o -o a1 -pthread
 
 assignment1.o:
 	$(CC) -c assignment1.c $(CFLAGS)

@@ -36,7 +36,7 @@ void produce(void *buff){
     struct buffer_item stuff;
     stuff.number = 1;
     stuff.sleep_time = 1;
-    buffer = stuff;
+    buffer = &stuff;
 }
 
 int main(int argc, char **argv) {

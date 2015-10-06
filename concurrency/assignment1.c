@@ -29,9 +29,9 @@ void consume(void *buff){
     int time_value;
     struct buffer_item from_buffer;
 
-    from_buffer = buffer;
+    from_buffer = *buffer;
     value = from_buffer.number;
-    time_value = from_buffer.sleep_time
+    time_value = from_buffer.sleep_time;
 
     //sleep time in time_value
     //Print value

@@ -31,8 +31,12 @@ void consume(void *buff){
 
 void produce(void *buff){
 
-    int x = 1;
-    x = x + 1;
+    //Generate numbers
+    //Enter numbers into buffer
+    struct buffer_item stuff;
+    stuff.number = 1;
+    stuff.sleep_time = 1;
+    buffer = stuff;
 }
 
 int main(int argc, char **argv) {

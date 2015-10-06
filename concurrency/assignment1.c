@@ -25,8 +25,17 @@ struct buffer_item *buffer;
 
 void consume(void *buff){
 
-    int x = 0;
-    x = x + 1;
+    int value;
+    int time_value;
+    struct buffer_item from_buffer;
+
+    from_buffer = buffer;
+    value = from_buffer.number;
+    time_value = from_buffer.sleep_time
+
+    //sleep time in time_value
+    //Print value
+
 }
 
 void produce(void *buff){

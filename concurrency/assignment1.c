@@ -32,10 +32,11 @@ void consume(void *buff){
     from_buffer = *buffer;
     value = from_buffer.number;
     time_value = from_buffer.sleep_time;
-
-    //sleep time in time_value
-    //Print value
-
+    
+    //acquire lock
+    sleep(time_vale);
+    print(value)
+    //relase lock
 }
 
 void produce(void *buff){

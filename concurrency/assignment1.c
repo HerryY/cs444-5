@@ -21,7 +21,8 @@ struct buffer_item {
     int sleep_time; 
 };
 
-struct buffer_item *buffer;
+//Create buffer, 32 buffer items
+struct buffer_item *buffer[32];
 
 void consume(void *buff){
 

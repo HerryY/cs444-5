@@ -64,13 +64,13 @@ void produce(void *buff){
 
 int main(int argc, char **argv) {
 
-    pthread_t *consumer;
-    pthread_t *producer;
+    pthread_t consumer;
+    pthread_t producer;
     void* consume_func = consume;
     void* produce_func = produce;
     buffer_index = 0;
 
-    pthread_create(producer, NULL, produce_func, NULL);
-    pthread_create(consumer, NULL, consume_func, NULL);
+    pthread_create(&producer, NULL, produce_func, NULL);
+    pthread_create(&consumer, NULL, consume_func, NULL);
     return 0;
 }

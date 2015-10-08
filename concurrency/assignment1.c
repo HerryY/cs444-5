@@ -35,6 +35,7 @@ void consume(void *buff){
     struct buffer_item from_buffer;
 
     //acquire lock
+    //recieve number from buffer item
     from_buffer = buffer->buffer[buffer_index];
     buffer_index--;
     value = from_buffer.number;
@@ -48,9 +49,10 @@ void consume(void *buff){
 //Producer thread function
 void produce(void *buff){
 
-    //Generate numbers
-    
     //Acquire Lock
+    //Generate sleep number
+    //sleep(generated_number)
+    //Generate other numbers
     //Enter numbers into buffer
     struct buffer_item stuff;
     stuff.number = 1;

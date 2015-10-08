@@ -1,8 +1,5 @@
 /****
  *Author: Taylor Fahlman
- *
- *
- *
 ****/
 
 #include <stdio.h>
@@ -11,18 +8,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Declare fubction prototypes and global index
 void consume(void *buff);
 void produce(void *buff);
 int buffer_index; 
 
+//Buffer item
 struct buffer_item {
     int number;
     int sleep_time; 
 };
 
 //Create buffer, 32 buffer items
-struct buffer_item *buffer[32];
+struct buffer_list {
+    struct buffer_item buffer[32];
+    pthread_mutex_t lock;
+};
 
+struct buffer_list *buffer;
+
+//Consume thread function
 void consume(void *buff){
 
     int value;
@@ -30,7 +35,7 @@ void consume(void *buff){
     struct buffer_item from_buffer;
 
     //acquire lock
-    from_buffer = *buffer[buffer_index];
+    from_buffer = buffer->buffer[buffer_index];
     buffer_index--;
     value = from_buffer.number;
     time_value = from_buffer.sleep_time;
@@ -40,6 +45,7 @@ void consume(void *buff){
     //relase lock
 }
 
+//Producer thread function
 void produce(void *buff){
 
     //Generate numbers
@@ -49,7 +55,7 @@ void produce(void *buff){
     struct buffer_item stuff;
     stuff.number = 1;
     stuff.sleep_time = 1;
-    buffer[buffer_index] = &stuff;
+    buffer->buffer[buffer_index] = stuff;
     buffer_index++;
     //Release lock
 }

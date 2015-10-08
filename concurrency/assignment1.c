@@ -25,7 +25,7 @@ struct buffer_list {
     pthread_mutex_t lock;
 };
 
-struct buffer_list *buffer;
+struct buffer_list buffer;
 
 //Consume thread function
 void consume(void *buff){
@@ -33,14 +33,14 @@ void consume(void *buff){
     int value;
     int time_value;
     struct buffer_item from_buffer;
-
+    
     //acquire lock
     //recieve number from buffer item
-    from_buffer = buffer->buffer[buffer_index];
+    from_buffer = buffer.buffer[buffer_index];
     buffer_index--;
     value = from_buffer.number;
     time_value = from_buffer.sleep_time;
-    
+     
     sleep(time_value);
     printf("%d\n",value);
     //relase lock
@@ -48,7 +48,7 @@ void consume(void *buff){
 
 //Producer thread function
 void produce(void *buff){
-
+    
     //Acquire Lock
     //Generate sleep number
     //sleep(generated_number)
@@ -57,7 +57,7 @@ void produce(void *buff){
     struct buffer_item stuff;
     stuff.number = 1;
     stuff.sleep_time = 1;
-    buffer->buffer[buffer_index] = stuff;
+    buffer.buffer[buffer_index] = stuff;
     buffer_index++;
     //Release lock
 }

@@ -48,18 +48,21 @@ void consume(void *buff){
 
 //Producer thread function
 void produce(void *buff){
-    
+   
+    struct buffer_item stuff;
+
     //Acquire Lock
+    pthread_mutex_lock(&buffer.lock);
     //Generate sleep number
     //sleep(generated_number)
     //Generate other numbers
     //Enter numbers into buffer
-    struct buffer_item stuff;
     stuff.number = 1;
     stuff.sleep_time = 1;
     buffer.buffer[buffer_index] = stuff;
     buffer_index++;
     //Release lock
+    pthread_mutex_unlock(&buffer.lock);
 }
 
 int main(int argc, char **argv) {
@@ -70,6 +73,7 @@ int main(int argc, char **argv) {
     void* produce_func = produce;
     buffer_index = 0;
 
+    pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
     pthread_create(&consumer, NULL, consume_func, NULL);
     return 0;

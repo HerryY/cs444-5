@@ -5,7 +5,7 @@
  *
 ****/
 
-
+#include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -29,26 +29,29 @@ void consume(void *buff){
     int time_value;
     struct buffer_item from_buffer;
 
+    //acquire lock
     from_buffer = *buffer[buffer_index];
     buffer_index--;
     value = from_buffer.number;
     time_value = from_buffer.sleep_time;
     
-    //acquire lock
     sleep(time_value);
-    //print(value);
+    printf("%d\n",value);
     //relase lock
 }
 
 void produce(void *buff){
 
     //Generate numbers
+    
+    //Acquire Lock
     //Enter numbers into buffer
     struct buffer_item stuff;
     stuff.number = 1;
     stuff.sleep_time = 1;
     buffer[buffer_index] = &stuff;
     buffer_index++;
+    //Release lock
 }
 
 int main(int argc, char **argv) {

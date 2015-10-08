@@ -36,13 +36,13 @@ void consume(void *buff){
     
     //acquire lock
     //recieve number from buffer item
-    from_buffer = buffer.buffer[buffer_index];
     buffer_index--;
+    from_buffer = buffer.buffer[buffer_index];
     value = from_buffer.number;
     time_value = from_buffer.sleep_time;
-     
-    sleep(time_value);
-    printf("%d\n",value);
+    
+    //sleep(time_value+200);
+    printf("Value:%d\n",value);
     //relase lock
 }
 
@@ -54,7 +54,6 @@ void produce(void *buff){
     //Acquire Lock
     pthread_mutex_lock(&buffer.lock);
     //Generate sleep number
-    //sleep(generated_number)
     //Generate other numbers
     //Enter numbers into buffer
     stuff.number = 1;
@@ -76,5 +75,6 @@ int main(int argc, char **argv) {
     pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
     pthread_create(&consumer, NULL, consume_func, NULL);
+    sleep(500);
     return 0;
 }

@@ -35,15 +35,17 @@ void consume(void *buff){
     struct buffer_item from_buffer;
     
     //acquire lock
+    pthread_mutex_lock(&buffer.lock);
     //recieve number from buffer item
     buffer_index--;
     from_buffer = buffer.buffer[buffer_index];
     value = from_buffer.number;
     time_value = from_buffer.sleep_time;
     
-    //sleep(time_value+200);
+    sleep(time_value);
     printf("Value:%d\n",value);
     //relase lock
+    pthread_mutex_unlock(&buffer.lock);
 }
 
 //Producer thread function

@@ -1,5 +1,7 @@
 /****
  *Author: Taylor Fahlman
+ *
+ *
 ****/
 
 #include <stdio.h>
@@ -9,9 +11,11 @@
 #include <string.h>
 
 //Declare fubction prototypes and global index
+void sig_catch(int sig);
 void consume(void *buff);
 void produce(void *buff);
-int buffer_index; 
+int consumer_buffer_index;
+int producer_buffer_index;
 
 //Buffer item
 struct buffer_item {
@@ -27,6 +31,12 @@ struct buffer_list {
 
 struct buffer_list buffer;
 
+void sig_catch(int sig){
+
+    kill(0,sig);
+    exit(0);
+}
+
 //Consume thread function
 void consume(void *buff){
 
@@ -37,8 +47,12 @@ void consume(void *buff){
     //acquire lock
     pthread_mutex_lock(&buffer.lock);
     //recieve number from buffer item
-    buffer_index--;
-    from_buffer = buffer.buffer[buffer_index];
+    from_buffer = buffer.buffer[consumer_buffer_index];
+    consumer_buffer_index++;
+    if(consumer_buffer_index >= 32)
+    {
+        consumer_buffer_index = 0;
+    }
     value = from_buffer.number;
     time_value = from_buffer.sleep_time;
     
@@ -60,8 +74,12 @@ void produce(void *buff){
     //Enter numbers into buffer
     stuff.number = 1;
     stuff.sleep_time = 1;
-    buffer.buffer[buffer_index] = stuff;
-    buffer_index++;
+    buffer.buffer[producer_buffer_index] = stuff;
+    producer_buffer_index++;
+    if(producer_buffer_index >= 32)
+    {
+        producer_buffer_index = 0;
+    }
     //Release lock
     pthread_mutex_unlock(&buffer.lock);
 }
@@ -72,11 +90,18 @@ int main(int argc, char **argv) {
     pthread_t producer;
     void* consume_func = consume;
     void* produce_func = produce;
-    buffer_index = 0;
+    consumer_buffer_index = 0;
+    producer_buffer_index = 0;
+    struct sigaction sig;
+
+    sigemptyset(&sig.sa_mask);
+    sig.sa_flags = 0;
+    sig.sa_handler = sig_catch;
+
+    sigaction(SIGINT, &sig, NULL);
 
     pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
     pthread_create(&consumer, NULL, consume_func, NULL);
-    sleep(500);
     return 0;
 }

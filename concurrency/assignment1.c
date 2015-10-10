@@ -1,7 +1,7 @@
 /****
  *Author: Taylor Fahlman
- *
- *
+ *Assignment: The Consumer-Producer Problem
+ *Date Due: 10/12/2015
 ****/
 
 #include <stdio.h>
@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//Declare fubction prototypes and global index
+//Declare function prototypes and global index
 void sig_catch(int sig);
 void consume(void *buff);
 void produce(void *buff);
@@ -46,7 +46,7 @@ void consume(void *buff){
     
     //acquire lock
     pthread_mutex_lock(&buffer.lock);
-    //recieve number from buffer item
+    //receive number from buffer item
     from_buffer = buffer.buffer[consumer_buffer_index];
     consumer_buffer_index++;
     if(consumer_buffer_index >= 32)
@@ -58,7 +58,7 @@ void consume(void *buff){
     
     sleep(time_value);
     printf("Value:%d\n",value);
-    //relase lock
+    //release lock
     pthread_mutex_unlock(&buffer.lock);
 }
 

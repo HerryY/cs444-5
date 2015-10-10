@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 //Declare function prototypes and global index
 void sig_catch(int sig);
@@ -90,9 +91,9 @@ int main(int argc, char **argv) {
     pthread_t producer;
     void* consume_func = consume;
     void* produce_func = produce;
+    struct sigaction sig;
     consumer_buffer_index = 0;
     producer_buffer_index = 0;
-    struct sigaction sig;
 
     sigemptyset(&sig.sa_mask);
     sig.sa_flags = 0;

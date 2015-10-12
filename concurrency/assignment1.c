@@ -122,7 +122,7 @@ void produce(void *buff){
     //Acquire Lock
     for(;;){
         pthread_mutex_lock(&buffer.lock);
-        while(consumer_buffer_index == 31)
+        while(producer_buffer_index == 31)
         {
             pthread_cond_wait(&producer_condition, &buffer.lock);
         }

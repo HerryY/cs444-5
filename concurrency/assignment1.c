@@ -17,6 +17,7 @@ void consume(void *buff);
 void produce(void *buff);
 int consumer_buffer_index;
 int producer_buffer_index;
+unsigned int generate_random_number();
 
 //Buffer item
 struct buffer_item {
@@ -33,9 +34,16 @@ struct buffer_list {
 struct buffer_list buffer;
 
 void sig_catch(int sig){
-
+    printf("Catching signal %d\n", sig);
     kill(0,sig);
     exit(0);
+}
+
+unsigned int generate_random_number(){  
+
+    unsigned int num = 0;
+
+    return num;
 }
 
 //Consume thread function
@@ -104,5 +112,8 @@ int main(int argc, char **argv) {
     pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
     pthread_create(&consumer, NULL, consume_func, NULL);
+    for(;;){
+
+    }
     return 0;
 }

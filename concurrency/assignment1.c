@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+//#include "mersene.c"
 
 #define CPUID(EAX, EBX, ECX, EDX)\
 __asm__ __volatile__("cpuid;" :\
@@ -28,7 +29,7 @@ void cpuid(void);
 int consumer_buffer_index;
 int producer_buffer_index;
 unsigned int eax,ebx,ecx,edx;
-pthread_cond_t consume_condition, produce_condition;
+pthread_cond_t consumer_condition, producer_condition;
 
 //Buffer item
 struct buffer_item {
@@ -44,6 +45,7 @@ struct buffer_list {
 
 struct buffer_list buffer;
 
+//Init function for cpuid
 void cpuid(void){
     CPUID(eax,ebx,ecx,edx);
 }
@@ -82,9 +84,13 @@ void consume(void *buff){
     int value;
     int time_value;
     struct buffer_item from_buffer;
-    
-    //acquire lock
+ 
     pthread_mutex_lock(&buffer.lock);
+    while(producer_buffer_index == 0)
+    {
+        pthread_cond_wait(&consumer_condition, &buffer.lock); 
+    }
+    //acquire lock
     //receive number from buffer item
     from_buffer = buffer.buffer[consumer_buffer_index];
     consumer_buffer_index++;
@@ -97,6 +103,7 @@ void consume(void *buff){
     
     sleep(time_value);
     printf("Value:%d\n",value);
+    pthread_cond_signal(&producer_condition);
     //release lock
     pthread_mutex_unlock(&buffer.lock);
 }
@@ -105,20 +112,30 @@ void consume(void *buff){
 void produce(void *buff){
    
     struct buffer_item stuff;
-
+    int producer_sleep_time;
+    int buffer_sleep_time;
+    int buffer_number;
     //Acquire Lock
     pthread_mutex_lock(&buffer.lock);
+    while(consumer_buffer_index == 31)
+    {
+        pthread_cond_wait(&producer_condition, &buffer.lock);
+    }
     //Generate sleep number
+    producer_sleep_time = generate_random_number(7,3);
     //Generate other numbers
+    buffer_sleep_time = generate_random_number(9,2);
+    buffer_number = generate_random_number(100,1);
     //Enter numbers into buffer
-    stuff.number = 1;
-    stuff.sleep_time = 1;
+    stuff.number = buffer_number;
+    stuff.sleep_time = buffer_sleep_time;
     buffer.buffer[producer_buffer_index] = stuff;
     producer_buffer_index++;
     if(producer_buffer_index >= 32)
     {
         producer_buffer_index = 0;
     }
+    pthread_cond_signal(&consumer_condition);
     //Release lock
     pthread_mutex_unlock(&buffer.lock);
 }
@@ -139,8 +156,8 @@ int main(int argc, char **argv) {
     sig.sa_handler = sig_catch;
     sigaction(SIGINT, &sig, NULL);
 
-    pthread_cond_init(&consume_condition, NULL);
-    pthread_cond_init(&produce_condition, NULL);
+    pthread_cond_init(&consumer_condition, NULL);
+    pthread_cond_init(&producer_condition, NULL);
     pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
     pthread_create(&consumer, NULL, consume_func, NULL);

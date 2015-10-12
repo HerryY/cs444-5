@@ -25,7 +25,7 @@ asm volatile("rdrand %0; setc %1":"=r"(*num) "=qm"(err)); err; })
 void sig_catch(int sig);
 void consume(void *buff);
 void produce(void *buff);
-int generate_random_number(void);
+int generate_random_number(int upper_time_limit, int lower_time_limit);
 void cpuid(void);
 int consumer_buffer_index;
 int producer_buffer_index;
@@ -55,8 +55,24 @@ void sig_catch(int sig){
     exit(0);
 }
 
-int generate_random_number(void){
+int generate_random_number(int upper_time_limit, int lower_time_limit){
     int num = 0;
+    eax = 0x01;
+    cpuid();
+    //If the left shifted 30th bit is set, supports rdrand
+    if(ecx & 1<<30) 
+    {
+        _rdrand_generate(&num);
+    }
+    else
+    {
+        //Use mersene twister
+    }
+    num %= (upper_time_limit - lower_time_limit);
+    if(num < lower_time_limit)
+    {
+        num = lower_time_limit;
+    }
 
     return num;
 }

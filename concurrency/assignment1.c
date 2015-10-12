@@ -11,13 +11,20 @@
 #include <string.h>
 #include <signal.h>
 
+#define cpuid(eax, ebx, ecx, edx)\
+__asm__ __volatile__("cpuid:"\
+"=a"(eax), "=b"(ebx), "=c"(ecx), "=d" (edx)\
+: "a"(eax)\
+);
+
 //Declare function prototypes and global index
 void sig_catch(int sig);
 void consume(void *buff);
 void produce(void *buff);
-unsigned int generate_random_number();
+int generate_random_number(void);
 int consumer_buffer_index;
 int producer_buffer_index;
+unsigned int eax,ebx,ecx,edx;
 
 //Buffer item
 struct buffer_item {
@@ -39,9 +46,8 @@ void sig_catch(int sig){
     exit(0);
 }
 
-unsigned int generate_random_number(){  
-
-    unsigned int num = 0;
+int generate_random_number(void){
+    int num = 0;
 
     return num;
 }

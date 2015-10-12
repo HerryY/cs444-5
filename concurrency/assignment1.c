@@ -17,9 +17,7 @@ __asm__ __volatile__("cpuid;" :\
  : "a"(EAX)\
 );
 
-#define _rdrand_generate(num) \
-({unsigned char err; \
-asm volatile("rdrand %0; setc %1":"=r"(*num) "=qm"(err)); err; })
+#define _rdrand_generate(x) ({ unsigned char err; asm volatile("rdrand %0; setc %1":"=r"(*x), "=qm"(err)); err;})
 
 //Declare function prototypes and global index
 void sig_catch(int sig);
@@ -30,6 +28,7 @@ void cpuid(void);
 int consumer_buffer_index;
 int producer_buffer_index;
 unsigned int eax,ebx,ecx,edx;
+pthread_cond_t consume_condition, produce_condition;
 
 //Buffer item
 struct buffer_item {
@@ -134,12 +133,14 @@ int main(int argc, char **argv) {
     consumer_buffer_index = 0;
     producer_buffer_index = 0;
 
+    //Initialize signal catching
     sigemptyset(&sig.sa_mask);
     sig.sa_flags = 0;
     sig.sa_handler = sig_catch;
-
     sigaction(SIGINT, &sig, NULL);
 
+    pthread_cond_init(&consume_condition, NULL);
+    pthread_cond_init(&produce_condition, NULL);
     pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
     pthread_create(&consumer, NULL, consume_func, NULL);

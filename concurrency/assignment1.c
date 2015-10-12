@@ -15,9 +15,9 @@
 void sig_catch(int sig);
 void consume(void *buff);
 void produce(void *buff);
+unsigned int generate_random_number();
 int consumer_buffer_index;
 int producer_buffer_index;
-unsigned int generate_random_number();
 
 //Buffer item
 struct buffer_item {

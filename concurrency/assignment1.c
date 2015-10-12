@@ -11,17 +11,23 @@
 #include <string.h>
 #include <signal.h>
 
-#define cpuid(eax, ebx, ecx, edx)\
+#define CPUID(EAX, EBX, ECX, EDX)\
 __asm__ __volatile__("cpuid:"\
-"=a"(eax), "=b"(ebx), "=c"(ecx), "=d" (edx)\
-: "a"(eax)\
+"=a"(EAX), "=b"(EBX), "=c"(ECX), "=d"(EDX)\
+ : "a"(EAX)\
 );
+
+#define _rdrand_generate(num) \
+({unsigned char err; \
+asm volatile("rdrand %0; setc %1":"=r"(*num), \
+"=qm"(err)); err; })
 
 //Declare function prototypes and global index
 void sig_catch(int sig);
 void consume(void *buff);
 void produce(void *buff);
 int generate_random_number(void);
+void cpuid(void);
 int consumer_buffer_index;
 int producer_buffer_index;
 unsigned int eax,ebx,ecx,edx;

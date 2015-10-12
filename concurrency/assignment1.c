@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-//#include "mersene.c"
+#include "mt19937ar.c"
 
 #define CPUID(EAX, EBX, ECX, EDX)\
 __asm__ __volatile__("cpuid;" :\
@@ -52,6 +52,9 @@ void cpuid(void){
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
+    pthread_mutex_destroy(&buffer.lock);
+    pthread_cond_destroy(&consumer_condition);
+    pthread_cond_destroy(&producer_condition);
     kill(0,sig);
     exit(0);
 }
@@ -68,6 +71,7 @@ int generate_random_number(int upper_time_limit, int lower_time_limit){
     else
     {
         //Use mersene twister
+        num = (int)genrand_int32();
     }
     num %= (upper_time_limit - lower_time_limit);
     if(num < lower_time_limit)
@@ -102,7 +106,7 @@ void consume(void *buff){
     time_value = from_buffer.sleep_time;
     
     sleep(time_value);
-    printf("Value:%d\n",value);
+    printf("Value: %d\n",value);
     pthread_cond_signal(&producer_condition);
     //release lock
     pthread_mutex_unlock(&buffer.lock);
@@ -116,28 +120,30 @@ void produce(void *buff){
     int buffer_sleep_time;
     int buffer_number;
     //Acquire Lock
-    pthread_mutex_lock(&buffer.lock);
-    while(consumer_buffer_index == 31)
-    {
-        pthread_cond_wait(&producer_condition, &buffer.lock);
+    for(;;){
+        pthread_mutex_lock(&buffer.lock);
+        while(consumer_buffer_index == 31)
+        {
+            pthread_cond_wait(&producer_condition, &buffer.lock);
+        }
+        //Generate sleep number
+        producer_sleep_time = generate_random_number(7,3);
+        //Generate other numbers
+        buffer_sleep_time = generate_random_number(9,2);
+        buffer_number = generate_random_number(100,1);
+        //Enter numbers into buffer
+        stuff.number = buffer_number;
+        stuff.sleep_time = buffer_sleep_time;
+        buffer.buffer[producer_buffer_index] = stuff;
+        producer_buffer_index++;
+        if(producer_buffer_index >= 32)
+        {
+            producer_buffer_index = 0;
+        }
+        pthread_cond_signal(&consumer_condition);
+        //Release lock
+        pthread_mutex_unlock(&buffer.lock);
     }
-    //Generate sleep number
-    producer_sleep_time = generate_random_number(7,3);
-    //Generate other numbers
-    buffer_sleep_time = generate_random_number(9,2);
-    buffer_number = generate_random_number(100,1);
-    //Enter numbers into buffer
-    stuff.number = buffer_number;
-    stuff.sleep_time = buffer_sleep_time;
-    buffer.buffer[producer_buffer_index] = stuff;
-    producer_buffer_index++;
-    if(producer_buffer_index >= 32)
-    {
-        producer_buffer_index = 0;
-    }
-    pthread_cond_signal(&consumer_condition);
-    //Release lock
-    pthread_mutex_unlock(&buffer.lock);
 }
 
 int main(int argc, char **argv) {
@@ -160,8 +166,8 @@ int main(int argc, char **argv) {
     pthread_cond_init(&producer_condition, NULL);
     pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
-    pthread_create(&consumer, NULL, consume_func, NULL);
     for(;;){
-
+    pthread_create(&consumer, NULL, consume_func, NULL);
+    pthread_join(consumer, NULL);
     }
 }

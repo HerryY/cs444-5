@@ -12,15 +12,14 @@
 #include <signal.h>
 
 #define CPUID(EAX, EBX, ECX, EDX)\
-__asm__ __volatile__("cpuid:"\
+__asm__ __volatile__("cpuid;" :\
 "=a"(EAX), "=b"(EBX), "=c"(ECX), "=d"(EDX)\
  : "a"(EAX)\
 );
 
 #define _rdrand_generate(num) \
 ({unsigned char err; \
-asm volatile("rdrand %0; setc %1":"=r"(*num), \
-"=qm"(err)); err; })
+asm volatile("rdrand %0; setc %1":"=r"(*num) "=qm"(err)); err; })
 
 //Declare function prototypes and global index
 void sig_catch(int sig);
@@ -45,6 +44,10 @@ struct buffer_list {
 };
 
 struct buffer_list buffer;
+
+void cpuid(void){
+    CPUID(eax,ebx,ecx,edx);
+}
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);

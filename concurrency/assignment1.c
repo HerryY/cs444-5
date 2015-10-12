@@ -73,6 +73,7 @@ int generate_random_number(int upper_time_limit, int lower_time_limit){
         //Use mersene twister
         num = (int)genrand_int32();
     }
+    num = abs(num);
     num %= (upper_time_limit - lower_time_limit);
     if(num < lower_time_limit)
     {
@@ -116,7 +117,6 @@ void consume(void *buff){
 void produce(void *buff){
    
     struct buffer_item stuff;
-    int producer_sleep_time;
     int buffer_sleep_time;
     int buffer_number;
     //Acquire Lock
@@ -127,7 +127,6 @@ void produce(void *buff){
             pthread_cond_wait(&producer_condition, &buffer.lock);
         }
         //Generate sleep number
-        producer_sleep_time = generate_random_number(7,3);
         //Generate other numbers
         buffer_sleep_time = generate_random_number(9,2);
         buffer_number = generate_random_number(100,1);

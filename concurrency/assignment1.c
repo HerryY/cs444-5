@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
     pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
     for(;;){
-    pthread_create(&consumer, NULL, consume_func, NULL);
-    pthread_join(consumer, NULL);
+        pthread_create(&consumer, NULL, consume_func, NULL);
+        pthread_join(consumer, NULL);
     }
 }

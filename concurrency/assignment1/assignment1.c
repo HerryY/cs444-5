@@ -147,8 +147,8 @@ void produce(void *buff){
 
 int main(int argc, char **argv) {
 
-    pthread_t consumer;
-    pthread_t producer;
+    pthread_t consumer, consumer2;
+    pthread_t producer, producer2;
     void* consume_func = consume;
     void* produce_func = produce;
     struct sigaction sig;
@@ -165,8 +165,10 @@ int main(int argc, char **argv) {
     pthread_cond_init(&producer_condition, NULL);
     pthread_mutex_init(&buffer.lock, NULL);
     pthread_create(&producer, NULL, produce_func, NULL);
+    pthread_create(&producer, NULL, produce_func, NULL);
     for(;;){
         pthread_create(&consumer, NULL, consume_func, NULL);
+        pthread_create(&consumer2, NULL, consume_func, NULL);
         pthread_join(consumer, NULL);
     }
 }

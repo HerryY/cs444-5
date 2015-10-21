@@ -14,7 +14,7 @@
 
 void sig_catch(int sig);
 pthread_mutex_t fork1, fork2, fork3, fork4, fork5;
-pthread_mutex_t fork12, fork23, fork34, fork45, fork51;
+int fork12 = 0, fork23 = 0, fork34 = 0, fork45 = 0, fork51 = 0;
 void plato(void);
 void locke(void);
 void pythagoras(void);
@@ -40,13 +40,11 @@ void think(void){
 void plato(void){
 
     //Philosopher 1, gets forks 1,2
-    pthread_mutex_lock(&fork12);
     pthread_mutex_lock(&fork1);
     pthread_mutex_lock(&fork2);
 
     pthread_mutex_unlock(&fork1);
     pthread_mutex_unlock(&fork2);
-    pthread_mutex_unlock(&fork12);
     //Signal on fork12
 }
 
@@ -79,6 +77,9 @@ int main(int argc, char **argv) {
     sig.sa_flags = 0;
     sig.sa_handler = sig_catch;
     sigaction(SIGINT, &sig, NULL);
-
+    
+    pthread_mutex_init(&fork12, NULL);
+    pthread_mutex_init(&fork1, NULL);
+    pthread_mutex_init(&fork2, NULL);
     
 }

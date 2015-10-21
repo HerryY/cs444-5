@@ -39,12 +39,27 @@ void think(void){
 
 void plato(void){
 
-    //Philosopher 1, gets forks 1,2
-    pthread_mutex_lock(&fork1);
-    pthread_mutex_lock(&fork2);
+    for(;;)
+    {
 
-    pthread_mutex_unlock(&fork1);
-    pthread_mutex_unlock(&fork2);
+        //Think
+        //Check that the adjacent philos dont have forks
+        //If they do, wait on signal 
+
+        //Philosopher 1, gets forks 1,2
+        fork12 = 1;
+        pthread_mutex_lock(&fork1);
+        pthread_mutex_lock(&fork2);
+
+        //Do eat
+    
+        pthread_mutex_unlock(&fork1);
+        pthread_mutex_unlock(&fork2);
+        fork12 = 0;
+
+        //Signal others
+
+    }
     //Signal on fork12
 }
 
@@ -78,7 +93,6 @@ int main(int argc, char **argv) {
     sig.sa_handler = sig_catch;
     sigaction(SIGINT, &sig, NULL);
     
-    pthread_mutex_init(&fork12, NULL);
     pthread_mutex_init(&fork1, NULL);
     pthread_mutex_init(&fork2, NULL);
     

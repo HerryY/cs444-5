@@ -40,6 +40,14 @@ void think(void){
 void plato(void){
 
     //Philosopher 1, gets forks 1,2
+    pthread_mutex_lock(&fork12);
+    pthread_mutex_lock(&fork1);
+    pthread_mutex_lock(&fork2);
+
+    pthread_mutex_unlock(&fork1);
+    pthread_mutex_unlock(&fork2);
+    pthread_mutex_unlock(&fork12);
+    //Signal on fork12
 }
 
 void locke(void){

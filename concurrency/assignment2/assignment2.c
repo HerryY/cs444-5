@@ -14,6 +14,7 @@
 
 void sig_catch(int sig);
 pthread_mutex_t fork1, fork2, fork3, fork4, fork5;
+pthread_mutex_t fork12, fork23, fork34, fork45, fork51;
 void plato(void);
 void locke(void);
 void pythagoras(void);
@@ -55,8 +56,5 @@ int main(int argc, char **argv) {
     sig.sa_handler = sig_catch;
     sigaction(SIGINT, &sig, NULL);
 
-    for(;;)
-    {
-
-    }
+    
 }

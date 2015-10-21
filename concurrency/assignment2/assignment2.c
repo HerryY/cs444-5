@@ -20,11 +20,21 @@ void locke(void);
 void pythagoras(void);
 void socrates(void);
 void marx(void);
+void eat(void);
+void think(void);
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
     kill(0,sig);
     exit(0);
+}
+
+void eat(void){
+
+}
+
+void think(void){
+
 }
 
 void plato(void){

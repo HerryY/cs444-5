@@ -29,21 +29,27 @@ void sig_catch(int sig){
 
 void plato(void){
 
+    //Philosopher 1, gets forks 1,2
 }
 
 void locke(void){
 
+    //Philosopher 2, gets forks 2,3
 }
 
 void pythagoras(void){
 
+    //Philosopher 3, gets forks 3,4
 }
 
 void socrates(void) {
 
+    //Philosopher 4, gets forks 4,5 
 }
 
 void marx(void) {
+
+    //Philosopher 5, gets forks 5,1
 
 }
 

@@ -23,6 +23,7 @@ void socrates(void);
 void marx(void);
 void eat(void);
 void think(void);
+int gen_number(int high, int low);
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
@@ -30,12 +31,34 @@ void sig_catch(int sig){
     exit(0);
 }
 
-void eat(void){
+int gen_number(int high, int low) {
 
+    int num = 0;
+
+    num = (int)genrand_int32();
+    num = abs(num);
+    num %= (high - low);
+    if (num < low)
+    {
+        num = low;
+    }
+
+    return num;
+}
+
+void eat(void){
+    
+    int num = 0;
+    
+    num = gen_number(9, 2);
+    sleep(num);
 }
 
 void think(void){
+    int num = 0;
 
+    num = gen_number(20, 1);
+    sleep(num);
 }
 
 void plato(void){
@@ -43,9 +66,9 @@ void plato(void){
     for(;;)
     {
         //Think
+        think();
         //Check that the adjacent philos dont have forks
         //If they do, wait on signal 
-
         //Philosopher 1, gets forks 1,2
         if(fork51 == 1)
         {
@@ -58,8 +81,11 @@ void plato(void){
         }
         pthread_mutex_lock(&fork2);
         fork12 = 1;
+
         //Do eat
-    
+        eat();
+
+        //Puts forks
         pthread_mutex_unlock(&fork1);
         pthread_cond_signal(&fork1_sig);
         pthread_mutex_unlock(&fork2);

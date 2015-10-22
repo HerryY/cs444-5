@@ -27,6 +27,16 @@ int gen_number(int high, int low);
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
+    pthread_mutex_destroy(&fork1);
+    pthread_mutex_destroy(&fork2);
+    pthread_mutex_destroy(&fork3);
+    pthread_mutex_destroy(&fork4);
+    pthread_mutex_destroy(&fork5);
+    pthread_cond_destroy(&fork1_sig);
+    pthread_cond_destroy(&fork2_sig);
+    pthread_cond_destroy(&fork3_sig);
+    pthread_cond_destroy(&fork4_sig);
+    pthread_cond_destroy(&fork5_sig);
     kill(0,sig);
     exit(0);
 }

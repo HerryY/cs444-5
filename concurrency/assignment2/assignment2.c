@@ -42,7 +42,6 @@ void plato(void){
 
     for(;;)
     {
-
         //Think
         //Check that the adjacent philos dont have forks
         //If they do, wait on signal 
@@ -118,4 +117,8 @@ int main(int argc, char **argv) {
     pthread_cond_init(&fork5_sig, NULL);
 
     pthread_create(&plato_thread, NULL, plato_func, NULL);
+
+    for(;;){
+
+    }
 }

@@ -202,8 +202,34 @@ void socrates(void) {
 
 void marx(void) {
 
-    //Philosopher 5, gets forks 5,1
+    for(;;)
+    {
+        //Think
+        think();
 
+        //Philosopher 5, gets forks 5,1
+        if(fork45 == 1)
+        {
+            pthread_cond_wait(&fork5_sig, &fork5);
+        }
+        pthread_mutex_lock(&fork5);
+        if(fork12 == 1)
+        {   
+            pthread_cond_wait(&fork1_sig, &fork1);   
+        }
+        pthread_mutex_lock(&fork1);
+        fork51 = 1;
+
+        //Eat
+        eat();
+        
+        //Put forks
+        pthread_mutex_unlock(&fork5);
+        pthread_cond_signal(&fork5_sig);
+        pthread_mutex_unlock(&fork1);
+        pthread_cond_signal(&fork1_sig);
+        fork51 = 0;
+    }
 }
 
 int main(int argc, char **argv) {

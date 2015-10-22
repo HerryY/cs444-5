@@ -15,7 +15,6 @@
 void sig_catch(int sig);
 pthread_mutex_t fork1, fork2, fork3, fork4, fork5;
 int fork12 = 0, fork23 = 0, fork34 = 0, fork45 = 0, fork51 = 0;
-pthread_cond_t fork1_sig, fork2_sig, fork3_sig, fork4_sig, fork5_sig;
 void plato(void);
 void locke(void);
 void pythagoras(void);
@@ -37,11 +36,6 @@ void sig_catch(int sig){
     pthread_mutex_destroy(&fork3);
     pthread_mutex_destroy(&fork4);
     pthread_mutex_destroy(&fork5);
-    pthread_cond_destroy(&fork1_sig);
-    pthread_cond_destroy(&fork2_sig);
-    pthread_cond_destroy(&fork3_sig);
-    pthread_cond_destroy(&fork4_sig);
-    pthread_cond_destroy(&fork5_sig);
     kill(0,sig);
     exit(0);
 }
@@ -109,9 +103,7 @@ void plato(void){
 
         //Puts forks
         pthread_mutex_unlock(&fork1);
-        pthread_cond_signal(&fork1_sig);
         pthread_mutex_unlock(&fork2);
-        pthread_cond_signal(&fork2_sig);
         fork12 = 0;
         printf("Plato has put forks 1 and 2 down\n");
     }
@@ -149,9 +141,7 @@ void locke(void){
 
        //Puts forks
         pthread_mutex_unlock(&fork2);
-        pthread_cond_signal(&fork2_sig);
         pthread_mutex_unlock(&fork3);
-        pthread_cond_signal(&fork3_sig);
         fork23 = 0;
         printf("Locke has put down forks 2 and 3\n");
     }
@@ -189,9 +179,7 @@ void pythagoras(void){
 
         //Puts forks
         pthread_mutex_unlock(&fork3);
-        pthread_cond_signal(&fork3_sig);
         pthread_mutex_unlock(&fork4);
-        pthread_cond_signal(&fork4_sig);
         fork34 = 0;
         printf("Pyhtagoras has put down forks 3 and 4\n");
     }
@@ -229,9 +217,7 @@ void socrates(void) {
 
         //Puts forks
         pthread_mutex_unlock(&fork4);
-        pthread_cond_signal(&fork4_sig);
         pthread_mutex_unlock(&fork5);
-        pthread_cond_signal(&fork5_sig);
         fork45 = 0;
         printf("Socrates has put down forks 4 and 5\n");
     }
@@ -269,9 +255,7 @@ void marx(void) {
         
         //Put forks
         pthread_mutex_unlock(&fork5);
-        pthread_cond_signal(&fork5_sig);
         pthread_mutex_unlock(&fork1);
-        pthread_cond_signal(&fork1_sig);
         fork51 = 0;
         printf("Marx has put down forks 5 and 1\n");
     }
@@ -301,11 +285,6 @@ int main(int argc, char **argv) {
     pthread_mutex_init(&fork3, NULL); 
     pthread_mutex_init(&fork4, NULL); 
     pthread_mutex_init(&fork5, NULL); 
-    pthread_cond_init(&fork1_sig, NULL);
-    pthread_cond_init(&fork2_sig, NULL);
-    pthread_cond_init(&fork3_sig, NULL);
-    pthread_cond_init(&fork4_sig, NULL);
-    pthread_cond_init(&fork5_sig, NULL);
 
     pthread_create(&plato_thread, NULL, plato_func, NULL);
     pthread_create(&locke_thread, NULL, locke_func, NULL);

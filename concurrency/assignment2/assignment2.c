@@ -100,18 +100,40 @@ void plato(void){
         pthread_cond_signal(&fork1_sig);
         pthread_mutex_unlock(&fork2);
         pthread_cond_signal(&fork2_sig);
-
         fork12 = 0;
-
-        //Signal others
-
     }
-    //Signal on fork12
 }
 
 void locke(void){
 
-    //Philosopher 2, gets forks 2,3
+    for(;;)
+    {
+        //Think
+        think();
+
+       //Philosopher 2, gets forks 2,3
+        if(fork12 == 1)
+        {
+            pthread_cond_wait(&fork2_sig, &fork2);    
+        }
+        pthread_mutex_lock(&fork2);
+        if(fork34 == 1)
+        {
+            pthread_cond_wait(&fork3_sig, &fork3);
+        }
+        pthread_mutex_lock(&fork3);
+        fork23 = 1;
+        
+        //Eat
+        eat();
+
+       //Puts forks
+        pthread_mutex_unlock(&fork2);
+        pthread_cond_signal(&fork2_sig);
+        pthread_mutex_unlock(&fork3);
+        pthread_cond_signal(&fork3_sig);
+        fork23 = 0;
+    }
 }
 
 void pythagoras(void){

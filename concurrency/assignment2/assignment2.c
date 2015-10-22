@@ -99,6 +99,7 @@ int main(int argc, char **argv) {
 
     struct sigaction sig;
     pthread_t plato_thread;
+    void* plato_func = plato;
 
     sigemptyset(&sig.sa_mask);
     sig.sa_flags = 0;
@@ -116,5 +117,5 @@ int main(int argc, char **argv) {
     pthread_cond_init(&fork4_sig, NULL);
     pthread_cond_init(&fork5_sig, NULL);
 
-    pthread_create(&plato_thread, NULL, plato, NULL);
+    pthread_create(&plato_thread, NULL, plato_func, NULL);
 }

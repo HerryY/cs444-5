@@ -138,7 +138,33 @@ void locke(void){
 
 void pythagoras(void){
 
-    //Philosopher 3, gets forks 3,4
+    for(;;)
+    {
+        //Think
+        think();
+        
+        //Philosopher 3, gets forks 3,4
+        if(fork23 == 1)
+        {
+            pthread_cond_wait(&fork3_sig, &fork3);
+        }
+        pthread_mutex_lock(&fork3);
+        if(fork45 == 1)
+        {
+            pthread_cond_wait(&fork4_sig, &fork4);
+        }
+        pthread_mutex_lock(&fork4);
+        fork34 = 1;
+
+        //Eat
+        eat();
+
+        //Puts forks
+        pthread_mutex_unlock(&fork3);
+        pthread_cond_signal(&fork3_sig);
+        pthread_mutex_unlock(&fork4);
+        pthread_cond_signal(&fork4_sig);
+    }
 }
 
 void socrates(void) {

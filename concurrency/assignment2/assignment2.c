@@ -212,9 +212,11 @@ int main(int argc, char **argv) {
     pthread_t plato_thread;
     pthread_t locke_thread;
     pthread_t pythag_thread;
+    pthread_t socrates_thread;
     void* plato_func = plato;
     void* locke_func = locke;
     void* pthag_func = pythagoras;
+    void* socrates_func = socrates;
 
     sigemptyset(&sig.sa_mask);
     sig.sa_flags = 0;
@@ -235,6 +237,7 @@ int main(int argc, char **argv) {
     pthread_create(&plato_thread, NULL, plato_func, NULL);
     pthread_create(&locke_thread, NULL, locke_func, NULL);
     pthread_create(&pythag_thread, NULL, pthag_func, NULL);
+    pthread_create(&socrates_thread, NULL, socrates_func, NULL);
 
     for(;;){
 

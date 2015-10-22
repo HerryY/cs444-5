@@ -76,24 +76,31 @@ void plato(void){
     for(;;)
     {
         //Think
+        printf("Plato is thinking\n");
         think();
+        printf("Plato is done thinking\n");
         //Check that the adjacent philos dont have forks
         //If they do, wait on signal 
         //Philosopher 1, gets forks 1,2
         if(fork51 == 1)
         {
+            printf("Plato is waiting for fork 1\n");
             pthread_cond_wait(&fork1_sig, &fork1);
         }
         pthread_mutex_lock(&fork1);
         if(fork23 == 1)
         {
+            printf("Plato is waiting for fork 2\n");
             pthread_cond_wait(&fork2_sig, &fork2);
         }
         pthread_mutex_lock(&fork2);
         fork12 = 1;
+        printf("Plato has forks 1 and 2\n");
 
         //Do eat
+        printf("Plato is eating\n");
         eat();
+        printf("Plato is done eating\n");
 
         //Puts forks
         pthread_mutex_unlock(&fork1);
@@ -101,6 +108,7 @@ void plato(void){
         pthread_mutex_unlock(&fork2);
         pthread_cond_signal(&fork2_sig);
         fork12 = 0;
+        printf("Plato has put forks 1 and 2 down\n");
     }
 }
 
@@ -109,23 +117,30 @@ void locke(void){
     for(;;)
     {
         //Think
+        printf("Locke is thinking\n");
         think();
+        printf("Locke is done thinking\n");
 
        //Philosopher 2, gets forks 2,3
         if(fork12 == 1)
         {
+            printf("Locke is waiting for fork 2\n");
             pthread_cond_wait(&fork2_sig, &fork2);    
         }
         pthread_mutex_lock(&fork2);
         if(fork34 == 1)
         {
+            printf("Locke is waiting for fork 3\n");
             pthread_cond_wait(&fork3_sig, &fork3);
         }
         pthread_mutex_lock(&fork3);
         fork23 = 1;
-        
+        printf("Locke has forks 2 and 3\n");
+
         //Eat
+        printf("Locke is eating\n");
         eat();
+        printf("Locke is done eating\n");
 
        //Puts forks
         pthread_mutex_unlock(&fork2);
@@ -133,6 +148,7 @@ void locke(void){
         pthread_mutex_unlock(&fork3);
         pthread_cond_signal(&fork3_sig);
         fork23 = 0;
+        printf("Locke has put down forks 2 and 3\n");
     }
 }
 

@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-#include <mt19937ar.c>
+#include "mt19937ar.c"
 
 void sig_catch(int sig);
 pthread_mutex_t fork1, fork2, fork3, fork4, fork5;
@@ -47,10 +47,17 @@ void plato(void){
         //If they do, wait on signal 
 
         //Philosopher 1, gets forks 1,2
-        fork12 = 1;
+        if(fork51 == 1)
+        {
+            //pthread_cond_wait(&fork1_signal, &fork1);
+        }
         pthread_mutex_lock(&fork1);
+        if(fork23 == 1)
+        {
+            //pthread_cond_wait(&fork2_signal, &fork2);
+        }
         pthread_mutex_lock(&fork2);
-
+        fork12 = 1;
         //Do eat
     
         pthread_mutex_unlock(&fork1);

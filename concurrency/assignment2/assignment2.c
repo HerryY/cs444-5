@@ -164,12 +164,40 @@ void pythagoras(void){
         pthread_cond_signal(&fork3_sig);
         pthread_mutex_unlock(&fork4);
         pthread_cond_signal(&fork4_sig);
+        fork34 = 0;
     }
 }
 
 void socrates(void) {
 
-    //Philosopher 4, gets forks 4,5 
+    for(;;)
+    {
+        //Think
+        think();
+
+        //Philosopher 4, gets forks 4,5
+        if(fork34 == 1)
+        {
+            pthread_cond_wait(&fork4_sig, &fork4);
+        }
+        pthread_mutex_lock(&fork4);
+        if(fork51 == 1)
+        {   
+            pthread_cond_wait(&fork5_sig, &fork5);
+        }
+        pthread_mutex_lock(&fork5);
+        fork45 = 1;
+
+        //Eat
+        eat();
+
+        //Puts forks
+        pthread_mutex_unlock(&fork4);
+        pthread_cond_signal(&fork4_sig);
+        pthread_mutex_unlock(&fork5);
+        pthread_cond_signal(&fork5_sig);
+        fork45 = 0;
+    }
 }
 
 void marx(void) {

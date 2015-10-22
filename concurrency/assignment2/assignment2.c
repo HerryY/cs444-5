@@ -27,6 +27,11 @@ int gen_number(int high, int low);
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
+    printf("fork12: %d\n", fork12);
+    printf("fork23: %d\n", fork23);
+    printf("fork34: %d\n", fork34);
+    printf("fork45: %d\n", fork45);
+    printf("fork51: %d\n", fork51);
     pthread_mutex_destroy(&fork1);
     pthread_mutex_destroy(&fork2);
     pthread_mutex_destroy(&fork3);
@@ -82,17 +87,17 @@ void plato(void){
         //Check that the adjacent philos dont have forks
         //If they do, wait on signal 
         //Philosopher 1, gets forks 1,2
-        if(fork51 == 1)
+        while(fork51 == 1)
         {
             printf("Plato is waiting for fork 1\n");
-            pthread_cond_wait(&fork1_sig, &fork1);
+            sleep(5);
         }
-        pthread_mutex_lock(&fork1);
-        if(fork23 == 1)
+        while(fork23 == 1)
         {
             printf("Plato is waiting for fork 2\n");
-            pthread_cond_wait(&fork2_sig, &fork2);
+            sleep(5);
         }
+        pthread_mutex_lock(&fork1);
         pthread_mutex_lock(&fork2);
         fork12 = 1;
         printf("Plato has forks 1 and 2\n");
@@ -122,17 +127,17 @@ void locke(void){
         printf("Locke is done thinking\n");
 
        //Philosopher 2, gets forks 2,3
-        if(fork12 == 1)
+        while(fork12 == 1)
         {
             printf("Locke is waiting for fork 2\n");
-            pthread_cond_wait(&fork2_sig, &fork2);    
+            sleep(5);
         }
-        pthread_mutex_lock(&fork2);
-        if(fork34 == 1)
+        while(fork34 == 1)
         {
             printf("Locke is waiting for fork 3\n");
-            pthread_cond_wait(&fork3_sig, &fork3);
+            sleep(5);
         }
+        pthread_mutex_lock(&fork2);
         pthread_mutex_lock(&fork3);
         fork23 = 1;
         printf("Locke has forks 2 and 3\n");
@@ -162,17 +167,17 @@ void pythagoras(void){
         printf("Pythagoras is done thinking\n");
         
         //Philosopher 3, gets forks 3,4
-        if(fork23 == 1)
+        while(fork23 == 1)
         {
             printf("Pythagoras is waiting for fork 3\n");
-            pthread_cond_wait(&fork3_sig, &fork3);
+            sleep(5);
         }
-        pthread_mutex_lock(&fork3);
-        if(fork45 == 1)
+        while(fork45 == 1)
         {
             printf("Pythagoras is waiting for fork 4\n");
-            pthread_cond_wait(&fork4_sig, &fork4);
+            sleep(5);
         }
+        pthread_mutex_lock(&fork3);
         pthread_mutex_lock(&fork4);
         fork34 = 1;
         printf("Pythagoras has forks 3 and 4\n");
@@ -202,17 +207,17 @@ void socrates(void) {
         printf("Socrates is done thinking\n");
 
         //Philosopher 4, gets forks 4,5
-        if(fork34 == 1)
+        while(fork34 == 1)
         {
             printf("Socrates is waiting for fork 4\n");
-            pthread_cond_wait(&fork4_sig, &fork4);
+            sleep(5);
         }
-        pthread_mutex_lock(&fork4);
-        if(fork51 == 1)
+        while(fork51 == 1)
         {   
             printf("Socrates is waiting for fork 5\n");
-            pthread_cond_wait(&fork5_sig, &fork5);
+            sleep(5);
         }
+        pthread_mutex_lock(&fork4);
         pthread_mutex_lock(&fork5);
         fork45 = 1;
         printf("Socrates has forks 4 and 5\n");
@@ -239,20 +244,20 @@ void marx(void) {
         //Think
         printf("Marx is thinking\n");
         think();
-        pritnf("Marx is done thinking\n");
+        printf("Marx is done thinking\n");
 
         //Philosopher 5, gets forks 5,1
-        if(fork45 == 1)
+        while(fork45 == 1)
         {
-            pthread_cond_wait(&fork5_sig, &fork5);
             printf("Marx is waiting for fork 5\n");
+            sleep(5);
+        }
+        while(fork12 == 1)
+        {
+            printf("Marx is waiting for fork 5\n");
+            sleep(5);
         }
         pthread_mutex_lock(&fork5);
-        if(fork12 == 1)
-        {   
-            pthread_cond_wait(&fork1_sig, &fork1);   
-            printf("Marx is waiting for fork 1\n");
-        }
         pthread_mutex_lock(&fork1);
         fork51 = 1;
         printf("Marx has forks 5 and 1\n");

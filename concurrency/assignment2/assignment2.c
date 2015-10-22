@@ -98,7 +98,8 @@ void marx(void) {
 int main(int argc, char **argv) {
 
     struct sigaction sig;
-    
+    pthread_t plato_thread;
+
     sigemptyset(&sig.sa_mask);
     sig.sa_flags = 0;
     sig.sa_handler = sig_catch;
@@ -114,4 +115,6 @@ int main(int argc, char **argv) {
     pthread_cond_init(&fork3_sig, NULL);
     pthread_cond_init(&fork4_sig, NULL);
     pthread_cond_init(&fork5_sig, NULL);
+
+    pthread_create(&plato_thread, NULL, plato, NULL);
 }

@@ -17,4 +17,4 @@ latex: commit
 	$(LATEX) writeup.tex
 
 clean:
-	rm -rf *.o a1 *~ *.aux *.log *.out
+	rm -rf *.o a2 *~ *.aux *.log *.out

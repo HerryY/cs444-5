@@ -157,23 +157,30 @@ void pythagoras(void){
     for(;;)
     {
         //Think
+        printf("Pythagoras is thinking\n");
         think();
+        printf("Pythagoras is done thinking\n");
         
         //Philosopher 3, gets forks 3,4
         if(fork23 == 1)
         {
+            printf("Pythagoras is waiting for fork 3\n");
             pthread_cond_wait(&fork3_sig, &fork3);
         }
         pthread_mutex_lock(&fork3);
         if(fork45 == 1)
         {
+            printf("Pythagoras is waiting for fork 4\n");
             pthread_cond_wait(&fork4_sig, &fork4);
         }
         pthread_mutex_lock(&fork4);
         fork34 = 1;
+        printf("Pythagoras has forks 3 and 4\n");
 
         //Eat
+        printf("Pythagoras is eating\n");
         eat();
+        printf("pythagoras is done eating\n");
 
         //Puts forks
         pthread_mutex_unlock(&fork3);
@@ -181,6 +188,7 @@ void pythagoras(void){
         pthread_mutex_unlock(&fork4);
         pthread_cond_signal(&fork4_sig);
         fork34 = 0;
+        printf("Pyhtagoras has put down forks 3 and 4\n");
     }
 }
 
@@ -189,23 +197,30 @@ void socrates(void) {
     for(;;)
     {
         //Think
+        printf("Socrates is thinking\n");
         think();
+        printf("Socrates is done thinking\n");
 
         //Philosopher 4, gets forks 4,5
         if(fork34 == 1)
         {
+            printf("Socrates is waiting for fork 4\n");
             pthread_cond_wait(&fork4_sig, &fork4);
         }
         pthread_mutex_lock(&fork4);
         if(fork51 == 1)
         {   
+            printf("Socrates is waiting for fork 5\n");
             pthread_cond_wait(&fork5_sig, &fork5);
         }
         pthread_mutex_lock(&fork5);
         fork45 = 1;
+        printf("Socrates has forks 4 and 5\n");
 
         //Eat
+        printf("Socrates is eating\n");
         eat();
+        printf("Socrates is done eating\n");
 
         //Puts forks
         pthread_mutex_unlock(&fork4);
@@ -213,6 +228,7 @@ void socrates(void) {
         pthread_mutex_unlock(&fork5);
         pthread_cond_signal(&fork5_sig);
         fork45 = 0;
+        printf("Socrates has put down forks 4 and 5\n");
     }
 }
 
@@ -221,23 +237,30 @@ void marx(void) {
     for(;;)
     {
         //Think
+        printf("Marx is thinking\n");
         think();
+        pritnf("Marx is done thinking\n");
 
         //Philosopher 5, gets forks 5,1
         if(fork45 == 1)
         {
             pthread_cond_wait(&fork5_sig, &fork5);
+            printf("Marx is waiting for fork 5\n");
         }
         pthread_mutex_lock(&fork5);
         if(fork12 == 1)
         {   
             pthread_cond_wait(&fork1_sig, &fork1);   
+            printf("Marx is waiting for fork 1\n");
         }
         pthread_mutex_lock(&fork1);
         fork51 = 1;
+        printf("Marx has forks 5 and 1\n");
 
         //Eat
+        printf("Marx is eating\n");
         eat();
+        printf("Marx is done eating\n");
         
         //Put forks
         pthread_mutex_unlock(&fork5);
@@ -245,6 +268,7 @@ void marx(void) {
         pthread_mutex_unlock(&fork1);
         pthread_cond_signal(&fork1_sig);
         fork51 = 0;
+        printf("Marx has put down forks 5 and 1\n");
     }
 }
 

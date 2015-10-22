@@ -15,6 +15,7 @@
 void sig_catch(int sig);
 pthread_mutex_t fork1, fork2, fork3, fork4, fork5;
 int fork12 = 0, fork23 = 0, fork34 = 0, fork45 = 0, fork51 = 0;
+pthread_cond_t fork1_sig, fork2_sig, fork3_sig, fork4_sig, fork5_sig;
 void plato(void);
 void locke(void);
 void pythagoras(void);
@@ -49,19 +50,22 @@ void plato(void){
         //Philosopher 1, gets forks 1,2
         if(fork51 == 1)
         {
-            //pthread_cond_wait(&fork1_signal, &fork1);
+            pthread_cond_wait(&fork1_sig, &fork1);
         }
         pthread_mutex_lock(&fork1);
         if(fork23 == 1)
         {
-            //pthread_cond_wait(&fork2_signal, &fork2);
+            pthread_cond_wait(&fork2_sig, &fork2);
         }
         pthread_mutex_lock(&fork2);
         fork12 = 1;
         //Do eat
     
         pthread_mutex_unlock(&fork1);
+        pthread_cond_signal(&fork1_sig);
         pthread_mutex_unlock(&fork2);
+        pthread_cond_signal(&fork2_sig);
+
         fork12 = 0;
 
         //Signal others
@@ -101,6 +105,13 @@ int main(int argc, char **argv) {
     sigaction(SIGINT, &sig, NULL);
     
     pthread_mutex_init(&fork1, NULL);
-    pthread_mutex_init(&fork2, NULL);
-    
+    pthread_mutex_init(&fork2, NULL); 
+    pthread_mutex_init(&fork3, NULL); 
+    pthread_mutex_init(&fork4, NULL); 
+    pthread_mutex_init(&fork5, NULL); 
+    pthread_cond_init(&fork1_sig, NULL);
+    pthread_cond_init(&fork2_sig, NULL);
+    pthread_cond_init(&fork3_sig, NULL);
+    pthread_cond_init(&fork4_sig, NULL);
+    pthread_cond_init(&fork5_sig, NULL);
 }

@@ -9,17 +9,18 @@
 
 struct look_data {
     struct list_head queue;
-}
+};
 
-static void look_merged requests
+static void look_merged_requests
 (struct request_queue *q, struct request *rq, struct request *next)
 {
 
 }
 
-static int look_dipatch(struct request_queue *q, int force)
+static int look_dispatch(struct request_queue *q, int force)
 {
 
+    return 0;
 }
 
 static void look_add_request(struct request_queue *q, struct request *rq)
@@ -31,17 +32,20 @@ static struct request *
 look_former_request(struct request_queue *q, struct request *rq)
 {
 
+    return NULL;
 }
 
 static struct request * 
 look_latter_request(struct request_queue *q, struct request *rq)
 {
 
+    return NULL;
 }
 
-static void look_init_queue(struct request_queue *q, struct elevator_type *e)
+static int look_init_queue(struct request_queue *q, struct elevator_type *e)
 {
 
+    return 0;
 }
 
 static void look_exit_queue(struct elevator_queue *e)

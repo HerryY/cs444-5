@@ -9,12 +9,14 @@
 
 struct look_data {
     struct list_head queue;
+    sector_t head_position;
+    int direction;
 };
 
 static void look_merged_requests
 (struct request_queue *q, struct request *rq, struct request *next)
 {
-    list_del_init(&next->queue);
+    list_del_init(&next->queuelist);
 }
 
 static int look_dispatch(struct request_queue *q, int force)
@@ -29,14 +31,14 @@ static int look_dispatch(struct request_queue *q, int force)
         //neq_req gets the next closest request grater than the current node
         next_req = list_entry(nd->queue.next, struct request, queuelist);
         //prev_req gets the closest request less than the current node
-        prev_req = list_entry(nd->prev.next, struct request, queuelist);
+        prev_req = list_entry(nd->queue.prev, struct request, queuelist);
 
         //Time to set rq
         
         //Check if the next is the previous, if there one element in the list
         if(prev_req == next_req)
         {
-            rq = prev_req;   
+            req = prev_req;   
         }
         else
         {
@@ -44,7 +46,7 @@ static int look_dispatch(struct request_queue *q, int force)
             if(nd->direction == 1)
             {
                 //If the next request is further forward
-                if(next_req->__sector > nd->head_pos)
+                if(next_req->__sector > nd->head_position)
                 {
                     //The request gets the next request
                     req = next_req;
@@ -61,7 +63,7 @@ static int look_dispatch(struct request_queue *q, int force)
             else
             {
                 //If the next request behind
-                if(prev_req->__sector < nd->head_pos)
+                if(prev_req->__sector < nd->head_position)
                 {
                     //The request gets the previous request
                     req = prev_req;
@@ -71,7 +73,7 @@ static int look_dispatch(struct request_queue *q, int force)
                 {
                     //Switch direction to forward
                     nd->direction = 1;
-                    rq = next_req;
+                    req = next_req;
                 }
             }
         }
@@ -81,7 +83,7 @@ static int look_dispatch(struct request_queue *q, int force)
 
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
-
+    
 }
 
 static struct request * 

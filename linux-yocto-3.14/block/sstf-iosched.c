@@ -21,11 +21,14 @@ static int look_dispatch(struct request_queue *q, int force)
 {
     struct look_data *nd = q->elevator->elevator_data;
 
+    //If request queue is not empty
     if(!list_empty(&nd->queue))
     {
         struct request *next_req, *prev_req, *req;
 
+        //neq_req gets the next closest request grater than the current node
         next_req = list_entry(nd->queue.next, struct request, queuelist);
+        //prev_req gets the closest request less than the current node
         prev_req = list_entry(nd->prev.next, struct request, queuelist);
     }   
     return 0;

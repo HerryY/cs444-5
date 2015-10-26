@@ -93,7 +93,9 @@ static int look_dispatch(struct request_queue *q, int force)
 
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
-    
+    struct look_data *nd = q->elevator->elevator_data;
+    struct request *next_req. *prev_req;
+    sector_t next_req_sector, current_req_sector;
 }
 
 static struct request * 

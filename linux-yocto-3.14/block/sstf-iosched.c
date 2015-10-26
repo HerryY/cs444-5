@@ -30,6 +30,18 @@ static int look_dispatch(struct request_queue *q, int force)
         next_req = list_entry(nd->queue.next, struct request, queuelist);
         //prev_req gets the closest request less than the current node
         prev_req = list_entry(nd->prev.next, struct request, queuelist);
+
+        //Time to set rq
+        
+        //Check if the next is the previous, if there one element in the list
+        if(prev_req == next_req)
+        {
+            rq = prev_req;   
+        }
+        else
+        {
+
+        }
     }   
     return 0;
 }

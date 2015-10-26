@@ -104,6 +104,12 @@ static void look_add_request(struct request_queue *q, struct request *rq)
         //Just add the request
         list_add(&rq->queuelist, nd->queue);
     }
+    else
+    {
+        //Find where the request fits into the list of requests
+        next_req = list_entry(nd->queue.next, struct request, queuelist);
+        prev_req = list_entry(nd->queue.prev, struct request, queuelist);
+    }
 }
 
 static struct request * 

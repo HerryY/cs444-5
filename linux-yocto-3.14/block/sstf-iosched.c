@@ -113,6 +113,14 @@ static void look_add_request(struct request_queue *q, struct request *rq)
         //Get the current sector and the next sector
         next_req_sector = blk_rq_pos(next_req);
         current_req_sector = blk_rq_pos(rq);
+
+        //Find exact spot where the new request fits
+        while(current_req_sector > next_req_sector)
+        {
+            next_req = list_entry(nd->queue.next, struct request, queuelist);
+            prev_req = list_entry(nd->queue.prev, struct request, queuelist);
+            next_req_sector = blk_rq_pos(rq);
+        }
     }
 }
 

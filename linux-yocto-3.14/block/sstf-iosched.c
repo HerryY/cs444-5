@@ -22,6 +22,7 @@ static void look_merged_requests
 static int look_dispatch(struct request_queue *q, int force)
 {
     struct look_data *nd = q->elevator->elevator_data;
+    
 
     //If request queue is not empty
     if(!list_empty(&nd->queue))
@@ -96,6 +97,13 @@ static void look_add_request(struct request_queue *q, struct request *rq)
     struct look_data *nd = q->elevator->elevator_data;
     struct request *next_req. *prev_req;
     sector_t next_req_sector, current_req_sector;
+    
+    //If list is empty
+    if(list_empty(nd->queue))
+    {
+        //Just add the request
+        list_add(&rq->queuelist, nd->queue);
+    }
 }
 
 static struct request * 

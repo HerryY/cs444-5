@@ -19,7 +19,15 @@ static void look_merged_requests
 
 static int look_dispatch(struct request_queue *q, int force)
 {
+    struct look_data *nd = q->elevator->elevator_data;
 
+    if(!list_empty(&nd->queue))
+    {
+        struct request *next_req, *prev_req, *req;
+
+        next_req = list_entry(nd->queue.next, struct request, queuelist);
+        prev_req = list_entry(nd->prev.next, struct request, queuelist);
+    }   
     return 0;
 }
 
@@ -51,7 +59,7 @@ look_latter_request(struct request_queue *q, struct request *rq)
 
 static int look_init_queue(struct request_queue *q, struct elevator_type *e)
 {
-
+    
     return 0;
 }
 

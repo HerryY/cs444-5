@@ -150,7 +150,17 @@ look_latter_request(struct request_queue *q, struct request *rq)
 
 static int look_init_queue(struct request_queue *q, struct elevator_type *e)
 {
-    
+    struct look_data *nd;
+
+    nd = kmalloc_node(sizeof(nd), GFP_KERNEL, q->node);
+    if(!nd)
+        return NULL;
+    INIT_LIST_HEAD(&nd->queue);
+    nd->head_position = 0;
+    nd->direction = 1;
+    return nd;
+
+
     return 0;
 }
 

@@ -77,6 +77,14 @@ static int look_dispatch(struct request_queue *q, int force)
                 }
             }
         }
+       
+        //Remove it from the queue we just got it from
+        list_del_init(&req->queuelist);
+        //get the new position for the read head
+        nd->head_position = blk_rq_pos(req) + blk_rq_sector(req);
+        //give request to the elevator 
+        elv_dispatch_add_tail(q, req);
+        return 1;
 
         printk("Taylor's LOOK accessing %lu\n", req->__sector);
     }   

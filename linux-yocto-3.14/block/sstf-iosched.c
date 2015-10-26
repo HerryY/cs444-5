@@ -40,7 +40,22 @@ static int look_dispatch(struct request_queue *q, int force)
         }
         else
         {
-
+            //If direction is going forward
+            if(nd->direction == 1)
+            {
+                //If the next request is further forward
+                if(next_req->__sector > nd->head_pos)
+                {
+                    //The request gets the next request
+                    req = next_req
+                }
+                //Then the next request must be behind the current request
+                else
+                {
+                    nd->direction = 0;
+                    req = prev_req;
+                }
+            }
         }
     }   
     return 0;

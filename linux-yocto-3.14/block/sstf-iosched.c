@@ -14,7 +14,7 @@ struct look_data {
 static void look_merged_requests
 (struct request_queue *q, struct request *rq, struct request *next)
 {
-
+    list_del_init(&next->queue);
 }
 
 static int look_dispatch(struct request_queue *q, int force)
@@ -57,7 +57,9 @@ static int look_init_queue(struct request_queue *q, struct elevator_type *e)
 
 static void look_exit_queue(struct elevator_queue *e)
 {
+    struct look_data *nd = e->elevator_data;
 
+    kfree(nd);
 }
 
 static struct elevator_type elevator_look = {

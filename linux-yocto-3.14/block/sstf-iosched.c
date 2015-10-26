@@ -77,6 +77,8 @@ static int look_dispatch(struct request_queue *q, int force)
                 }
             }
         }
+
+        printk("Taylor's LOOK accessing %lu\n", req->__sector);
     }   
     return 0;
 }

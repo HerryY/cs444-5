@@ -95,7 +95,7 @@ static int look_dispatch(struct request_queue *q, int force)
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
     struct look_data *nd = q->elevator->elevator_data;
-    struct request *next_req. *prev_req;
+    struct request *next_req, *prev_req;
     sector_t next_req_sector, current_req_sector;
     
     //If list is empty
@@ -109,6 +109,10 @@ static void look_add_request(struct request_queue *q, struct request *rq)
         //Find where the request fits into the list of requests
         next_req = list_entry(nd->queue.next, struct request, queuelist);
         prev_req = list_entry(nd->queue.prev, struct request, queuelist);
+        
+        //Get the current sector and the next sector
+        next_req_sector = blk_rq_pos(next_req);
+        current_req_sector = blk_rq_pos(rq);
     }
 }
 

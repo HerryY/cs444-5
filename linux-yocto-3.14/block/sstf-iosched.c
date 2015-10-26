@@ -121,7 +121,10 @@ static void look_add_request(struct request_queue *q, struct request *rq)
             prev_req = list_entry(nd->queue.prev, struct request, queuelist);
             next_req_sector = blk_rq_pos(rq);
         }
+        //Adds the current request between the two nodes
+        __list_add(&rq->queuelist, &prev_req->queuelist, &next_req->queuelist);
     }
+    printk("Taylor's LOOK adding %llu\n", (unsigned long long) rq->__sector);
 }
 
 static struct request * 

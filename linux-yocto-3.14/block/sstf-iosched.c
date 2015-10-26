@@ -23,7 +23,7 @@ static int look_dispatch(struct request_queue *q, int force)
 {
     struct look_data *nd = q->elevator->elevator_data;
     
-
+    printk("Here is the start of dispatch\n");
     //If request queue is not empty
     if(!list_empty(&nd->queue))
     {
@@ -151,16 +151,27 @@ look_latter_request(struct request_queue *q, struct request *rq)
 static int look_init_queue(struct request_queue *q, struct elevator_type *e)
 {
     struct look_data *nd;
+    struct elevator_queue *eq;
+
+    eq = elevator_alloc(q, e);
+    if(!eq)
+        return -ENOMEM;
 
     nd = kmalloc_node(sizeof(nd), GFP_KERNEL, q->node);
     if(!nd)
-        return NULL;
+    {
+        kobject_put(&eq->kobj);
+        return -ENOMEM;
+    }
+    
+    eq->elevator_data = nd;
+
     INIT_LIST_HEAD(&nd->queue);
     nd->head_position = 0;
     nd->direction = 1;
-    return nd;
-
-
+    spin_lock_irq(q->queue_lock);
+    q->elevator = eq;
+    spin_unlock_irq(q->queue_lock);
     return 0;
 }
 

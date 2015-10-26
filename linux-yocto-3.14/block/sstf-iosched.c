@@ -82,7 +82,7 @@ static int look_dispatch(struct request_queue *q, int force)
         //Remove it from the queue we just got it from
         list_del_init(&req->queuelist);
         //get the new position for the read head
-        nd->head_position = blk_rq_pos(req) + blk_rq_sector(req);
+        nd->head_position = blk_rq_pos(req) + blk_rq_sectors(req);
         //give request to the elevator 
         elv_dispatch_add_tail(q, req);
         return 1;
@@ -99,10 +99,10 @@ static void look_add_request(struct request_queue *q, struct request *rq)
     sector_t next_req_sector, current_req_sector;
     
     //If list is empty
-    if(list_empty(nd->queue))
+    if(list_empty(&nd->queue))
     {
         //Just add the request
-        list_add(&rq->queuelist, nd->queue);
+        list_add(&rq->queuelist, &nd->queue);
     }
     else
     {

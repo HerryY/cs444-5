@@ -31,14 +31,21 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 static struct request * 
 look_former_request(struct request_queue *q, struct request *rq)
 {
+    struct look_data *nd = q->elevator->elevator_data;
 
-    return NULL;
+    if(rq->queuelist.next == &nd->queue)
+        return NULL;
+    return list_entry(rq->queuelist.next, struct request, queuelist);
 }
 
 static struct request * 
 look_latter_request(struct request_queue *q, struct request *rq)
 {
+    struct look_data *nd = q->elevator->elevator_data;
 
+    if(rq->queuelist.next == &nd->queue)
+        return NULL;
+    return list_entry(rq->queuelist.next, struct request, queuelist);
     return NULL;
 }
 

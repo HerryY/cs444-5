@@ -87,7 +87,7 @@ static int look_dispatch(struct request_queue *q, int force)
         elv_dispatch_add_tail(q, req);
         return 1;
 
-        printk("Taylor's LOOK accessing %lu\n", req->__sector);
+        printk("Taylor's LOOK accessing %llu\n",(unsigned long long) req->__sector);
     }   
     return 0;
 }

@@ -157,30 +157,31 @@ look_latter_request(struct request_queue *q, struct request *rq)
     return NULL;
 }
 
-static int look_init_queue(struct request_queue *q, struct elevator_type *e)
+static void* look_init_queue(struct request_queue *q, struct elevator_type *e)
 {
     struct look_data *nd;
     struct elevator_queue *eq;
 
     eq = elevator_alloc(q, e);
     if(!eq)
-        return -ENOMEM;
+        return NULL;
 
     nd = kmalloc_node(sizeof(*nd), GFP_KERNEL, q->node);
     if(!nd)
     {
-        kobject_put(&eq->kobj);
-        return -ENOMEM;
+       kobject_put(&eq->kobj);
+        return NULL;
     }
     
     eq->elevator_data = nd;
 
     INIT_LIST_HEAD(&nd->queue);
     nd->direction = 1;
+    nd->head_position = 0;
     spin_lock_irq(q->queue_lock);
     q->elevator = eq;
     spin_unlock_irq(q->queue_lock);
-    return 0;
+    return nd;
 }
 
 static void look_exit_queue(struct elevator_queue *e)

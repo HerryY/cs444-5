@@ -16,7 +16,7 @@ void sig_catch(int sig);
 int gen_number(int high, int low);
 void searcher(void *num);
 void inserter(void);
-void deleter(void);
+void deleter(void *num);
 
 struct buffer_item {
     int number;
@@ -65,8 +65,8 @@ void inserter(void) {
     buff.items++;
 }
 
-void deleter(void) {
-
+void deleter(void *num) {
+ 
 }
 
 

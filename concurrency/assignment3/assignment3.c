@@ -14,7 +14,7 @@
 
 void sig_catch(int sig);
 int gen_number(int high, int low);
-void searcher(void);
+void searcher(void *num);
 void inserter(void);
 void deleter(void);
 
@@ -50,8 +50,8 @@ int gen_number(int high, int low) {
     return num;
 }
 
-void searcher(void) {
-
+void searcher(void *num) {
+    
 }
 
 void inserter(void) {

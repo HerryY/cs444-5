@@ -21,11 +21,13 @@ void deleter(void);
 struct buffer_item {
     int number;
     struct buffer_item* next;
-}
+};
 
 struct buffer {
     struct buffer_item* head;
-}
+};
+
+struct buffer buff;
 
 void sig_catch(int sig){
     kill(0,sig);

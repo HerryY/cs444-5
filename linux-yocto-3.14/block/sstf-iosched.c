@@ -40,7 +40,7 @@ static int look_dispatch(struct request_queue *q, int force)
         if(prev_req == next_req)
         {
             printk("One request\n");
-            req = prev_req;   
+            req = next_req;   
         }
         else
         {
@@ -101,7 +101,6 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 {
     struct look_data *nd = q->elevator->elevator_data;
     struct request *next_req, *prev_req;
-    sector_t next_req_sector, current_req_sector;
  
     printk("Starting add\n");
     //If list is empty
@@ -118,19 +117,14 @@ static void look_add_request(struct request_queue *q, struct request *rq)
         next_req = list_entry(nd->queue.next, struct request, queuelist);
         prev_req = list_entry(nd->queue.prev, struct request, queuelist);
         
-        //Get the current sector and the next sector
-        next_req_sector = blk_rq_pos(next_req);
-        current_req_sector = blk_rq_pos(rq);
-
         //Find exact spot where the new request fits
-        while(current_req_sector > next_req_sector)
+        while(blk_rq_pos(rq) > blk_rq_pos(next_req))
         {
-            next_req = list_entry(nd->queue.next, struct request, queuelist);
-            prev_req = list_entry(nd->queue.prev, struct request, queuelist);
-            next_req_sector = blk_rq_pos(rq);
+            next_req = list_entry(next_req->queuelist.next, struct request, queuelist);
+            prev_req = list_entry(prev_req->queuelist.prev, struct request, queuelist);
         }
         //Adds the current request between the two nodes
-        __list_add(&rq->queuelist, &prev_req->queuelist, &next_req->queuelist);
+        list_add(&rq->queuelist, &prev_req->queuelist);
         printk("Found it\n");
     }
     printk("Taylor's LOOK adding %llu\n", (unsigned long long) rq->__sector);
@@ -141,9 +135,9 @@ look_former_request(struct request_queue *q, struct request *rq)
 {
     struct look_data *nd = q->elevator->elevator_data;
 
-    if(rq->queuelist.next == &nd->queue)
+    if(rq->queuelist.prev == &nd->queue)
         return NULL;
-    return list_entry(rq->queuelist.next, struct request, queuelist);
+    return list_entry(rq->queuelist.prev, struct request, queuelist);
 }
 
 static struct request * 
@@ -154,34 +148,32 @@ look_latter_request(struct request_queue *q, struct request *rq)
     if(rq->queuelist.next == &nd->queue)
         return NULL;
     return list_entry(rq->queuelist.next, struct request, queuelist);
-    return NULL;
 }
 
-static void* look_init_queue(struct request_queue *q, struct elevator_type *e)
+static int look_init_queue(struct request_queue *q, struct elevator_type *e)
 {
     struct look_data *nd;
     struct elevator_queue *eq;
 
     eq = elevator_alloc(q, e);
     if(!eq)
-        return NULL;
+        return -ENOMEM;
 
     nd = kmalloc_node(sizeof(*nd), GFP_KERNEL, q->node);
     if(!nd)
     {
        kobject_put(&eq->kobj);
-        return NULL;
+        return -ENOMEM;
     }
-    
+  
+    nd->head_position = 0;
     eq->elevator_data = nd;
 
     INIT_LIST_HEAD(&nd->queue);
-    nd->direction = 1;
-    nd->head_position = 0;
     spin_lock_irq(q->queue_lock);
     q->elevator = eq;
     spin_unlock_irq(q->queue_lock);
-    return nd;
+    return 0;
 }
 
 static void look_exit_queue(struct elevator_queue *e)

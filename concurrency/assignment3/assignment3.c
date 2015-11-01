@@ -18,6 +18,15 @@ void searcher(void);
 void inserter(void);
 void deleter(void);
 
+struct buffer_item {
+    int number;
+    struct buffer_item* next;
+}
+
+struct buffer {
+    struct buffer_item* head;
+}
+
 void sig_catch(int sig){
     kill(0,sig);
     exit(0);

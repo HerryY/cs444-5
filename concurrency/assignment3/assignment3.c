@@ -78,4 +78,7 @@ int main(int argc, char **argv) {
     sig.sa_handler = sig_catch;
     sigaction(SIGINT, &sig, NULL);
 
+    for(;;) {
+
+    }
 }

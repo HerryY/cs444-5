@@ -26,6 +26,7 @@ struct buffer_item {
 struct buffer {
     struct buffer_item* head;
     struct buffer_item* cur;
+    int items;
 };
 
 struct buffer buff;
@@ -58,9 +59,10 @@ void inserter(void) {
 
     struct buffer_item item;
 
-    item->num = gen_number(100, 1);
-    buff->cur->next = item;
-    buff->cur = buff->cur->next;
+    item.number = gen_number(100, 1);
+    buff.cur->next = &item;
+    buff.cur = buff.cur->next;
+    buff.items++;
 }
 
 void deleter(void) {

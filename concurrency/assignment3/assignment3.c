@@ -25,6 +25,7 @@ struct buffer_item {
 
 struct buffer {
     struct buffer_item* head;
+    struct buffer_item* cur;
 };
 
 struct buffer buff;
@@ -55,6 +56,11 @@ void searcher(void) {
 
 void inserter(void) {
 
+    struct buffer_item item;
+
+    item->num = gen_number(100, 1);
+    buff->cur->next = item;
+    buff->cur = buff->cur->next;
 }
 
 void deleter(void) {
@@ -69,4 +75,5 @@ int main(int argc, char **argv) {
     sig.sa_flags = 0;
     sig.sa_handler = sig_catch;
     sigaction(SIGINT, &sig, NULL);
+
 }

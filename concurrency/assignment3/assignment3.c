@@ -63,7 +63,7 @@ void searcher(void *args) {
     {
         find = find->next;
     }   
-    printf("%d\n", find->number);
+    printf("Number: %d\n", find->number);
 }
 
 void inserter(void) {
@@ -74,10 +74,33 @@ void inserter(void) {
     buff.cur->next = &item;
     buff.cur = buff.cur->next;
     buff.items++;
+    printf("Added %d to end\n", item.number);
 }
 
 void deleter(void *arg) {
- 
+
+    int i;
+    struct buffer_item *to_delete = buff.head;
+    struct buffer_item *temp;
+
+    printf("Delteing\n");
+    if(number == 1)
+    {
+        printf("Not removing the head\n");
+        return;
+    }
+    for(i = 0; i < number; i++)
+    {
+        if(i == (number - 2))
+        {
+            temp = to_delete;
+        }
+        to_delete = to_delete->next;          
+    }
+    
+    temp->next = to_delete->next;
+    free(to_delete);
+    printf("Done Deleting\n");
 }
 
 

@@ -71,11 +71,21 @@ void inserter(void) {
 
     struct buffer_item item;
 
+    while(deleters != 0)
+    {
+        sleep(5);
+    }
+    while(inserters != 0)
+    {
+        sleep(5);
+    }
+    inserters = 1;
     item.number = gen_number(100, 1);
     buff.cur->next = &item;
     buff.cur = buff.cur->next;
     buff.items++;
     printf("Added %d to end\n", item.number);
+    inserters = 0;
 }
 
 void deleter(void *arg) {

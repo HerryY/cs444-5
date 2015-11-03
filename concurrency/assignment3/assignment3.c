@@ -58,7 +58,11 @@ void searcher(void *args) {
 
     int i;
     struct buffer_item *find = buff.head;
- 
+
+    while(deleters != 0)
+    {
+        sleep(5);
+    }
     printf("Searching\n");
     for(i = 0; i < number; i++)
     {

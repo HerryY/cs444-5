@@ -58,7 +58,7 @@ int gen_number(int high, int low) {
     return num;
 }
 
-void searcher(void *num) {
+void searcher(void *args) {
 
 }
 
@@ -72,7 +72,7 @@ void inserter(void) {
     buff.items++;
 }
 
-void deleter(void *num) {
+void deleter(void *arg) {
  
 }
 

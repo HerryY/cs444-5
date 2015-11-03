@@ -64,6 +64,11 @@ void searcher(void *args) {
         sleep(5);
     }
     printf("Searching\n");
+    if(number < buff.items)
+    {
+        printf("Can't find this node\n");
+        return;
+    }
     for(i = 0; i < number; i++)
     {
         find = find->next;

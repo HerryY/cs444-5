@@ -32,6 +32,7 @@ struct buffer {
 
 struct buffer buff;
 int number;
+int deleters, searchers, inserters;
 
 void sig_catch(int sig){
     kill(0,sig);
@@ -57,7 +58,7 @@ void searcher(void *args) {
 
     int i;
     struct buffer_item *find = buff.head;
-
+ 
     printf("Searching\n");
     for(i = 0; i < number; i++)
     {
@@ -116,6 +117,10 @@ int main(int argc, char **argv) {
     init_item.next = NULL;
     init_item.number = 1;
     buff.head = &init_item;
+
+    deleters = 0;
+    searchers = 0;
+    inserters = 0;
 
     for(;;) {
 

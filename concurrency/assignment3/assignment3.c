@@ -84,6 +84,20 @@ void deleter(void *arg) {
     struct buffer_item *to_delete = buff.head;
     struct buffer_item *temp;
 
+    while(deleters != 0)
+    {
+        sleep(5);
+    }
+    deleters = 1;
+    while(inserters != 0)
+    {
+        sleep(5);
+    }
+    while(searchers != 0)
+    {
+        sleep(5);
+    }
+
     printf("Delteing\n");
     if(number == 1)
     {
@@ -102,6 +116,7 @@ void deleter(void *arg) {
     temp->next = to_delete->next;
     free(to_delete);
     printf("Done Deleting\n");
+    deleters = 0;
 }
 
 

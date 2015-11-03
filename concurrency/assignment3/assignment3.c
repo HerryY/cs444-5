@@ -118,6 +118,10 @@ void deleter(void *arg) {
         printf("Not removing the head\n");
         return;
     }
+    else if(number < buff.items)
+    {
+        printf("This node doesn't exist\n");
+    }
     for(i = 0; i < number; i++)
     {
         if(i == (number - 2))

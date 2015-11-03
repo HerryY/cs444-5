@@ -29,14 +29,9 @@ struct buffer {
     int items;
 };
 
-struct arguments {
-    struct buffer *buff;
-    struct buffer_item *head;
-    struct buffer_item *cur;
-    int number;
-};
 
 struct buffer buff;
+int number;
 
 void sig_catch(int sig){
     kill(0,sig);
@@ -60,6 +55,15 @@ int gen_number(int high, int low) {
 
 void searcher(void *args) {
 
+    int i;
+    struct buffer_item *find = buff.head;
+
+    printf("Searching\n");
+    for(i = 0; i < number; i++)
+    {
+        find = find->next;
+    }   
+    printf("%d\n", find->number);
 }
 
 void inserter(void) {
@@ -80,12 +84,18 @@ void deleter(void *arg) {
 int main(int argc, char **argv) {
 
     struct sigaction sig;
+    struct buffer_item init_item;
     sigemptyset(&sig.sa_mask);
     sig.sa_flags = 0;
     sig.sa_handler = sig_catch;
     sigaction(SIGINT, &sig, NULL);
 
+    init_item.next = NULL;
+    init_item.number = 1;
+    buff.head = &init_item;
+
     for(;;) {
 
+        number = gen_number(buff.items, 1);
     }
 }

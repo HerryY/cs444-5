@@ -80,6 +80,7 @@ void inserter(void) {
 
     struct buffer_item item;
 
+    printf("Inserting\n");
     while(deleters != 0)
     {
         sleep(5);
@@ -90,6 +91,10 @@ void inserter(void) {
     }
     inserters = 1;
     item.number = gen_number(100, 1);
+    while(buff.cur->next != NULL)
+    {
+        buff.cur = buff.cur->next;
+    }
     buff.cur->next = &item;
     buff.cur = buff.cur->next;
     buff.items++;
@@ -170,6 +175,11 @@ int main(int argc, char **argv) {
     pthread_create(&thread2, NULL, insert_func, NULL);
     pthread_create(&thread3, NULL, search_func, NULL);
     pthread_create(&thread4, NULL, delete_func, NULL);
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
+    pthread_join(thread4, NULL);
+
 
     for(;;) {
         pthread_t new;

@@ -147,6 +147,11 @@ int main(int argc, char **argv) {
 
     struct sigaction sig;
     struct buffer_item init_item;
+    int choice;
+    pthread_t thread1, thread2, thread3, thread4;
+    void *delete_func = deleter;
+    void *insert_func = inserter;
+    void *search_func = searcher;
     sigemptyset(&sig.sa_mask);
     sig.sa_flags = 0;
     sig.sa_handler = sig_catch;
@@ -161,7 +166,10 @@ int main(int argc, char **argv) {
     inserters = 0;
 
     for(;;) {
-
+        choice = gen_number(3, 1);
+        if(choice == 1)
+        {
+        }
         number = gen_number(buff.items, 1);
     }
 }

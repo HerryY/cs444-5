@@ -29,6 +29,13 @@ struct buffer {
     int items;
 };
 
+struct arguments {
+    struct buffer *buff;
+    struct buffer_item *head;
+    struct buffer_item *cur;
+    int number;
+};
+
 struct buffer buff;
 
 void sig_catch(int sig){
@@ -52,7 +59,7 @@ int gen_number(int high, int low) {
 }
 
 void searcher(void *num) {
-    
+
 }
 
 void inserter(void) {

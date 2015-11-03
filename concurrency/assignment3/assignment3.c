@@ -164,8 +164,15 @@ int main(int argc, char **argv) {
     deleters = 0;
     searchers = 0;
     inserters = 0;
+    number = 2;
+    
+    pthread_create(&thread1, NULL, insert_func, NULL);
+    pthread_create(&thread2, NULL, insert_func, NULL);
+    pthread_create(&thread3, NULL, search_func, NULL);
+    pthread_create(&thread4, NULL, delete_func, NULL);
 
     for(;;) {
+        pthread_t new;
         choice = gen_number(3, 1);
         if(choice == 1)
         {

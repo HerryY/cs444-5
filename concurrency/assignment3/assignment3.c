@@ -70,6 +70,7 @@ void searcher(void *args) {
         sleep(5);
     }
     printf("Searching\n");
+    searchers++;
     //The node has to exist
     if(number < buff.items)
     {
@@ -82,6 +83,7 @@ void searcher(void *args) {
         find = find->next;
     }
     printf("Number: %d\n", find->number);
+    searchers--;
 }
 
 void inserter(void) {
@@ -206,11 +208,7 @@ int main(int argc, char **argv) {
 
 
     for(;;) {
-        pthread_t new;
         choice = gen_number(3, 1);
-        if(choice == 1)
-        {
-        }
         number = gen_number(buff.items, 1);
     }
 }

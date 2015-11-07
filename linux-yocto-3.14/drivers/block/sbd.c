@@ -290,6 +290,19 @@ static int __init sbd_init(void) {
         printk(KERN_WARNING "sbd: Can't get major number\n");
         return -EBUSY;
     }
+
+   //Allocate device array, init them
+    Devices = kmalloc(ndevices*sizeof (struct sbd_dev), GFP_KERNEL);
+    if(Devices == NULL)
+        goto out_unregister;
+    for(i = 0; i < ndevices; i++)
+        setup_device(Devices + i, i);
+
+    return 0;
+
+  out_unregister:
+      unregister_blkdev(sbd_major, "sbd");
+      return -ENOMEM;
 }
 
 static void sbd_exit(void) {

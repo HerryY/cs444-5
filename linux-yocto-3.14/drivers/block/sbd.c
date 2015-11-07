@@ -76,6 +76,28 @@ static int sbd_xfer_request(struct sbd_dev *dev, struct request *req) {
 }
 
 static void sbd_full_request(struct request_queue *q) {
+    
+    struct request *req;
+    int sectors_xferred; 
+    struct sbd_dev *dev = q->queuedata;
+
+    //Takes request and sends i to xfer_reqest
+    while ((req = elv_next_request(q)) != NULL)
+    {
+        if(!blk_fs_request(req))
+        {
+            printk(KERN_NOTICE "Skips non-fs request\n");
+            end_request(req, 0);
+            continue;
+        }
+        sectors_xferred = sbd_xfer_reqest(dev, req);
+        //Makes sure that the request gets completed
+        if(!end_that_request_first(req, 1, sectors_xferred))
+        {
+            blkdev_dequeue_request(req);
+            end_that_request_last(req);
+        }
+    }
 
 }
 static void sbd_make_request(struct request_queue *q, struct bio *bio) {

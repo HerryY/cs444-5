@@ -65,6 +65,26 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
 
 static void sbd_request(struct request_queue *q) {
 
+    struct request *req;
+
+    //simplified version of the full request
+    //Gets the next incomplete request on queue
+    while((req = elv_next_request(q)) != NULL)
+    {
+        struct sbull_dev *dev = req->rq_disk->private_data;
+        //End request if it's non-fs
+        if(!blk_fs_request(req))
+        {
+            printk(KERN_NOTICE "Skip non-fs request\n");
+            end_request(req, 0);
+            continue;
+        }
+        //Send request to transfer function
+        sbd_transfer(dev, req->sector, req->current_nr_sectors,
+                req->buffer, rq_data_dir(req));
+        //Make sure to end request
+        end_request(req, 1);
+    }
 }
 
 static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {

@@ -307,6 +307,31 @@ static int __init sbd_init(void) {
 
 static void sbd_exit(void) {
 
+    int i;
+
+    for(i = 0; i < ndevices; i++)
+    {
+        struct sbd_dev *dev = Device + i;
+        
+        del_timer_sync(&dev->timer);
+        if(dev->gd) 
+        {
+            del_gendisk(dev->gd);
+            put_disk(dev->gd);
+        }
+        if(dev->queue)
+        {
+            if(request_mode == RM_NOQUEUE)
+                kobject_put(&dev->queue->kobj);
+            else
+                blk_cleanup_queue(dev->queue);
+        }
+        if(dev->data)
+            vfree(dev->data);
+
+    }
+    unregister_blkdev(sbd_major, "sbd");
+    kfree(Devices);
 }
 
 module_init(sbd_init);

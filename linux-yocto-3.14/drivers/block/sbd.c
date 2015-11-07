@@ -65,13 +65,6 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
 
 static void sbd_request(struct request_queue *q) {
 
-    struct sbd_dev *dev = q->queuedata;
-    int status;
-
-    //Goes through the bio request without a request queue
-    status = sbd_xfer_bio(dev, bio);
-    bio_endio(bio, bio->bi_size, status);
-    return 0; 
 }
 
 static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {
@@ -134,6 +127,13 @@ static void sbd_full_request(struct request_queue *q) {
 }
 static void sbd_make_request(struct request_queue *q, struct bio *bio) {
 
+    struct sbd_dev *dev = q->queuedata;
+    int status;
+
+    //Goes through the bio request without a request queue
+    status = sbd_xfer_bio(dev, bio);
+    bio_endio(bio, bio->bi_size, status);
+    return 0;
 }
 
 static int sbd_open(struct block_device *bdev, fmode_t mode) {

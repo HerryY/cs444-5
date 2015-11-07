@@ -48,6 +48,19 @@ static struct sbd_dev *Devices = NULL;
 static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
         unsigned long nsect, char *buffer, int write) {
 
+    unsigned long offset = sector*KERNEL_SECTOR_SIZE;
+    unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
+
+    if((offset + nbytes) > dev->size)
+    {
+        printk(KERN_NOTICE "Beyond end wriet (%ld %ld)\n", offset, nbytes);
+        return;
+    }
+
+    if(write)
+        memcpy(dev->data + offset, buffer, nbytes);
+    else
+        memcpy(buffer, dev->data + offset, nbytes);
 }
 
 static void sbd_request(struct request_queue *q) {
@@ -123,9 +136,28 @@ void sbd_invalidate(unsigned long ldev){
 
 }
 
-int sbd_ioctl (struct block_device *bdev, fmode_t mode,
+int sbd_ioctl (struct inode *inode, struct file *flip,
                  unsigned int cmd, unsigned long arg){
 
+    long size;
+    struct hd_geometry geo;
+    struct sbd_dec *dev = flip->private_data;
+
+    switch(cmd)
+    {
+        case HDIO_GETGEO:
+            size = dev->size*(hardsect_size/KERNEL_SECTOR_SIZE);
+            geo.cylinders = (size & ~0x3f) >>6;
+            geo.heads = 4;
+            geo.sectors = 16;
+            geo.start = 4;
+            if(copy_to_user((void __user *) arg, &geo, sizeof(geo)))
+                return -EFAULT;
+
+        return 0;
+    }
+
+    return -ENOTTY;
 }
 
 

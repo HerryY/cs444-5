@@ -108,7 +108,15 @@ int sbd_media_changed(struct gendisk *gd) {
 }
 
 int sbd_revalidate(struct gendisk *gd) {
+    
+    struct sbd_dev *dev = gd->private_data;
 
+    if(dev->media_change) 
+    {
+        dev->media_change = 0;
+        memset(dev->data, 0, dev->size);
+    }
+    return 0;
 }
 
 void sbd_invalidate(unsigned long ldev){

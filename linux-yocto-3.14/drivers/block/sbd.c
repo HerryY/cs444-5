@@ -69,6 +69,20 @@ static void sbd_request(struct request_queue *q) {
 
 static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {
 
+    int i;
+    struct bio_vec *bvec;
+    sector_t sector = bio->bi_sector;
+
+    //Iterate throught each section
+    bio_for_each_segment(bvec, bio, i)
+    {
+        char *buffer = __bio_kmap_atomic(bio, i, KM_USER0);
+        sbd_transfer(dev, sector, bio_cur_sectors(bio),
+                buffer, bio_data_dir(bio) == WRITE);
+        sector += bio_cur_sectors(bio);
+        __bio_kunmap_atomic(bio, KM_USER0);
+    }
+    return 0;
 }
 
 static int sbd_xfer_request(struct sbd_dev *dev, struct request *req) {

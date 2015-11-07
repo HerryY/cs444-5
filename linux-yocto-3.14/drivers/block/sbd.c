@@ -73,6 +73,17 @@ static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {
 
 static int sbd_xfer_request(struct sbd_dev *dev, struct request *req) {
 
+    struct bio *bio;
+    int nsect = 0;
+
+    //steps through each request and sends it to xfer_bio
+    rq_for_each_bio(bio, req)
+    {
+        sbd_xfer_bio(dev, bio);
+        nsect += bio->bi_size/KERNEL_SECTOR_SIZE;
+    }
+
+    return nsect;
 }
 
 static void sbd_full_request(struct request_queue *q) {

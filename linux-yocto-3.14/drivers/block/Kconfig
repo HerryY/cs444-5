@@ -15,6 +15,9 @@ menuconfig BLK_DEV
 
 if BLK_DEV
 
+config CRYPTO_RD
+    tristate "Ram Disk Driver for CS444"
+
 config BLK_DEV_NULL_BLK
 	tristate "Null test block driver"
 

@@ -208,6 +208,14 @@ int sbd_revalidate(struct gendisk *gd) {
 
 void sbd_invalidate(unsigned long ldev){
 
+    struct sbd_dev *dev = (struct sbd_dev *) ldev;
+
+    spin_lock(&dev->lock);
+    if(dev->users || !dev->data)
+        printk(KERN_WARNING "sdb: timer sanity check failed\n");
+    else
+        dev->media_change = 1;
+    spin_unlock(&dev->lock);
 }
 
 int sbd_ioctl (struct inode *inode, struct file *flip,

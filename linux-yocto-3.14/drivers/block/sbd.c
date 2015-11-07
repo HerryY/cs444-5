@@ -70,15 +70,41 @@ static void sbd_make_request(struct request_queue *q, struct bio *bio) {
 }
 
 static int sbd_open(struct block_device *bdev, fmode_t mode) {
+    
+    struct sbd_dev *dev = inode->i_bdev->bd_disk->private_data;
 
+    del_trime_sync(&dev->time);
+    flip->private_data = dev;
+    spin_lock(&dev->lock);
+    if(!dev->users)
+        check_disk_change(inode->i_bdev);
+    dev->users++;
+    spin_unlock(&dev->lock);
+    return 0;
 }
 
 static void sbd_release(struct gendisk *disk, fmode_t mode) {
 
+    struct sbd_release(struct inode *inode, struct *file flip)
+
+    spin_lock(&dev->lock);
+    dev->users--;
+
+    if(!dev->users) {
+        dev->timer.expires = jiffies + INVALIDATE_DELAY;
+        add_time(&dev->timer);
+    }
+
+    spin_unlock(&dev->lock);
+
+    return 0;
 }
 
 int sbd_media_changed(struct gendisk *gd) {
 
+    struct sbd_dev *dev = gd->private_data;
+
+    return dev->media_change;
 }
 
 int sbd_revalidate(struct gendisk *gd) {
@@ -106,10 +132,50 @@ static struct block_device_operations sbd_ops = {
 
 static void setup_device(struct sbd_dev *dev, int which) {
 
+    memset(dev, 0, sizeof(struct sbd_dev));
+    dev->size = nsectors*hardsect_size;
+    dev->data = vmalloc(dev->size);
+    if(dev->data == NULL)
+    {
+        printk(KERN_NOTICE "Vmalloc failure\n");
+        return;
+    }
+    spin_lock_init(&dev->lock);
+
+    dev->queue = blk_init_queue(sdb_request, &dev->lock);
+    
+    dev->gd = alloc_disk(SBD_MINORS);
+    if(!dev->gd)
+    {
+        printk(KERN_NOTICE "Alloc Disk failure\n");
+        goto out_vfree;
+    }
+
+    dev->gd->major = sbd_major;
+    dev->gd->first_major = which*SBD_MINORS;
+    dev->gd->fops = &sbd_ops;
+    dev->gd->queue = dev->queue;
+    dev->gd->private_data = dev;
+    snprintf(dev->gd->disk_name, 32, "sbd%c", which + 'a');
+    set_capacity(dev->gd, nsectors*(hardsect_size/KERNEL_SECTOR_SIZE));
+    add_disk(dev->gd);
+    return;
+
+  out_vfree:
+        if(dev->data)
+            vfree(dev->data);
 }
 
 static int __init sbd_init(void) {
 
+    int i;
+
+    sbd_major = register_blkdev(sbd_major, "sbd");
+    if(sbd_major <= 0)
+    {
+        printk(KERN_WARNING "sbd: Can't get major number\n");
+        return -EBUSY;
+    }
 }
 
 static void sbd_exit(void) {

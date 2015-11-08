@@ -108,18 +108,18 @@ static void sbd_request(struct request_queue *q) {
 //Tranfer one bio structre
 static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {
 
-    int i;
     struct bio_vec *bvec;
-    sector_t sector = bio->bi_sector;
+    struct bvec_iter iter;
+    sector_t sector = bio->bi_iter.bi_sector;
 
     //Iterate throught each section
-    bio_for_each_segment(bvec, bio, i)
+    bio_for_each_segment(bvec, bio, iter)
     {
-        char *buffer = __bio_kmap_atomic(bio, i, KM_USER0);
+        char *buffer = __bio_kmap_atomic(bio, iter);
         sbd_transfer(dev, sector, bio_cur_sectors(bio),
                 buffer, bio_data_dir(bio) == WRITE);
         sector += bio_cur_sectors(bio);
-        __bio_kunmap_atomic(bio, KM_USER0);
+        __bio_kunmap_atomic(bio);
     }
     return 0;
 }
@@ -134,7 +134,7 @@ static int sbd_xfer_request(struct sbd_dev *dev, struct request *req) {
     __rq_for_each_bio(bio, req)
     {
         sbd_xfer_bio(dev, bio);
-        nsect += bio->bi_size/KERNEL_SECTOR_SIZE;
+        nsect += bio->bi_iter.bi_size/KERNEL_SECTOR_SIZE;
     }
 
     return nsect;

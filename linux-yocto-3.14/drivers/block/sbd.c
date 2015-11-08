@@ -1,5 +1,5 @@
 /**
- *
+ * SBD
  */
 
 #include <linux/module.h>
@@ -7,22 +7,22 @@
 #include <linux/init.h>
 
 #include <linux/sched.h>
-#include <linux/kernel.h>   /* printk() */
-#include <linux/slab.h>     /* kmalloc() */
-#include <linux/fs.h>       /* everything... */
-#include <linux/errno.h>    /* error codes */
+#include <linux/kernel.h>  /* printk() */
+#include <linux/slab.h>        /* kmalloc() */
+#include <linux/fs.h>      /* everything... */
+#include <linux/errno.h>   /* error codes */
 #include <linux/timer.h>
-#include <linux/types.h>    /* size_t */
-#include <linux/fcntl.h>    /* O_ACCMODE */
-#include <linux/hdreg.h>    /* HDIO_GETGEO */
+#include <linux/types.h>   /* size_t */
+#include <linux/fcntl.h>   /* O_ACCMODE */
+#include <linux/hdreg.h>   /* HDIO_GETGEO */
 #include <linux/kdev_t.h>
 #include <linux/vmalloc.h>
 #include <linux/genhd.h>
 #include <linux/blkdev.h>
-#include <linux/buffer_head.h>  /* invalidate_bdev */
+#include <linux/buffer_head.h> /* invalidate_bdev */
 #include <linux/bio.h>
 
-
+//Enumerating the request modes
 enum {
     RM_SIMPLE  = 0, /* The extra-simple request function */
     RM_FULL    = 1, /* The full-blown version */
@@ -30,8 +30,18 @@ enum {
 };
 static int request_mode = RM_SIMPLE;
 
+//Set minor numbers and partition management 
+#define SBD_MINORS  16
+#define MINOR_SHIFT 4
+#define DEVNUM(kdevnum) (MINOR(kdev_t_to_nr(kdevnum)) >> MINOR_SHIFT
+
+//Set sector number so kernel can talk to driver
 #define KERNEL_SECTOR_SIZE  512
 
+//After some idle time, simulate media change
+#define INVALIDATE_DELAY30*HZ
+
+//Struct to represent the device
 struct sbd_dev {
         int size;                       /* Device size in sectors */
         u8 *data;                       /* The data array */
@@ -45,6 +55,8 @@ struct sbd_dev {
 
 static struct sbd_dev *Devices = NULL;
 
+
+//Handle IO request at hte lowest level
 static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
         unsigned long nsect, char *buffer, int write) {
 
@@ -53,7 +65,7 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
 
     if((offset + nbytes) > dev->size)
     {
-        printk(KERN_NOTICE "Beyond end wriet (%ld %ld)\n", offset, nbytes);
+        printk(KERN_NOTICE "Beyond end write (%ld %ld)\n", offset, nbytes);
         return;
     }
 
@@ -63,30 +75,32 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
         memcpy(buffer, dev->data + offset, nbytes);
 }
 
+//Simple request handling
 static void sbd_request(struct request_queue *q) {
 
     struct request *req;
 
     //simplified version of the full request
     //Gets the next incomplete request on queue
-    while((req = elv_next_request(q)) != NULL)
+    while((req = blk_fetch_request(q)) != NULL)
     {
         struct sbull_dev *dev = req->rq_disk->private_data;
         //End request if it's non-fs
-        if(!blk_fs_request(req))
+        if(req->cmd_type != REQ_TYPE_FS)
         {
             printk(KERN_NOTICE "Skip non-fs request\n");
-            end_request(req, 0);
+            __blk_end_request_cir(req, -EIO);
             continue;
         }
         //Send request to transfer function
         sbd_transfer(dev, req->sector, req->current_nr_sectors,
                 req->buffer, rq_data_dir(req));
         //Make sure to end request
-        end_request(req, 1);
+        __blk_end_request_cur(req, 1);
     }
 }
 
+//Tranfer one bio structre
 static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {
 
     int i;
@@ -105,13 +119,14 @@ static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {
     return 0;
 }
 
+//Transfer of full request
 static int sbd_xfer_request(struct sbd_dev *dev, struct request *req) {
 
     struct bio *bio;
     int nsect = 0;
 
     //steps through each request and sends it to xfer_bio
-    rq_for_each_bio(bio, req)
+    __rq_for_each_bio(bio, req)
     {
         sbd_xfer_bio(dev, bio);
         nsect += bio->bi_size/KERNEL_SECTOR_SIZE;
@@ -120,6 +135,8 @@ static int sbd_xfer_request(struct sbd_dev *dev, struct request *req) {
     return nsect;
 }
 
+
+//Request function that handles more complex things, like clusering
 static void sbd_full_request(struct request_queue *q) {
     
     struct request *req;
@@ -127,24 +144,21 @@ static void sbd_full_request(struct request_queue *q) {
     struct sbd_dev *dev = q->queuedata;
 
     //Takes request and sends i to xfer_reqest
-    while ((req = elv_next_request(q)) != NULL)
+    while ((req = blk_fetch_request(q)) != NULL)
     {
-        if(!blk_fs_request(req))
+        if(req->cmd_type != REQ_TYPE_FS)
         {
             printk(KERN_NOTICE "Skips non-fs request\n");
-            end_request(req, 0);
+            __blk_end_request(req, -EIO, blk_rq_cur_bytes(req));
             continue;
         }
         sectors_xferred = sbd_xfer_reqest(dev, req);
-        //Makes sure that the request gets completed
-        if(!end_that_request_first(req, 1, sectors_xferred))
-        {
-            blkdev_dequeue_request(req);
-            end_that_request_last(req);
-        }
+        __blk_end_request(req, 0, sectors_xferred);
     }
 
 }
+
+//Directly make a request
 static void sbd_make_request(struct request_queue *q, struct bio *bio) {
 
     struct sbd_dev *dev = q->queuedata;
@@ -152,16 +166,17 @@ static void sbd_make_request(struct request_queue *q, struct bio *bio) {
 
     //Goes through the bio request without a request queue
     status = sbd_xfer_bio(dev, bio);
-    bio_endio(bio, bio->bi_size, status);
+    bio_endio(bio, status);
     return 0;
 }
 
+//Open the device
 static int sbd_open(struct block_device *bdev, fmode_t mode) {
     
     struct sbd_dev *dev = inode->i_bdev->bd_disk->private_data;
 
     del_trime_sync(&dev->time);
-    flip->private_data = dev;
+    //flip->private_data = dev;
     spin_lock(&dev->lock);
     if(!dev->users)
         check_disk_change(inode->i_bdev);
@@ -170,6 +185,7 @@ static int sbd_open(struct block_device *bdev, fmode_t mode) {
     return 0;
 }
 
+//Release the device
 static void sbd_release(struct gendisk *disk, fmode_t mode) {
 
     struct sbd_release(struct inode *inode, struct *file flip)
@@ -187,6 +203,7 @@ static void sbd_release(struct gendisk *disk, fmode_t mode) {
     return 0;
 }
 
+//Handle media change
 int sbd_media_changed(struct gendisk *gd) {
 
     struct sbd_dev *dev = gd->private_data;
@@ -194,6 +211,7 @@ int sbd_media_changed(struct gendisk *gd) {
     return dev->media_change;
 }
 
+//Revalidate after media change
 int sbd_revalidate(struct gendisk *gd) {
     
     struct sbd_dev *dev = gd->private_data;
@@ -206,6 +224,7 @@ int sbd_revalidate(struct gendisk *gd) {
     return 0;
 }
 
+//Runs with device times, simulates media removal
 void sbd_invalidate(unsigned long ldev){
 
     struct sbd_dev *dev = (struct sbd_dev *) ldev;
@@ -218,6 +237,7 @@ void sbd_invalidate(unsigned long ldev){
     spin_unlock(&dev->lock);
 }
 
+//Implementation of ioctl()
 int sbd_ioctl (struct inode *inode, struct file *flip,
                  unsigned int cmd, unsigned long arg){
 

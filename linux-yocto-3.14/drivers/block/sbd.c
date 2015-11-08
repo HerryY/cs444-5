@@ -22,6 +22,11 @@
 #include <linux/buffer_head.h> /* invalidate_bdev */
 #include <linux/bio.h>
 
+static int sbd_major = 0;
+static int hardsect_size = 512;
+static int nsectors = 1024;
+int ndevices = 4;
+
 //Enumerating the request modes
 enum {
     RM_SIMPLE  = 0, /* The extra-simple request function */
@@ -39,7 +44,7 @@ static int request_mode = RM_SIMPLE;
 #define KERNEL_SECTOR_SIZE  512
 
 //After some idle time, simulate media change
-#define INVALIDATE_DELAY30*HZ
+#define INVALIDATE_DELAY 30*HZ
 
 //Struct to represent the device
 struct sbd_dev {
@@ -84,16 +89,16 @@ static void sbd_request(struct request_queue *q) {
     //Gets the next incomplete request on queue
     while((req = blk_fetch_request(q)) != NULL)
     {
-        struct sbull_dev *dev = req->rq_disk->private_data;
+        struct sbd_dev *dev = req->rq_disk->private_data;
         //End request if it's non-fs
         if(req->cmd_type != REQ_TYPE_FS)
         {
             printk(KERN_NOTICE "Skip non-fs request\n");
-            __blk_end_request_cir(req, -EIO);
+            __blk_end_request_cur(req, -EIO);
             continue;
         }
         //Send request to transfer function
-        sbd_transfer(dev, req->sector, req->current_nr_sectors,
+        sbd_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req),
                 req->buffer, rq_data_dir(req));
         //Make sure to end request
         __blk_end_request_cur(req, 1);
@@ -152,7 +157,7 @@ static void sbd_full_request(struct request_queue *q) {
             __blk_end_request(req, -EIO, blk_rq_cur_bytes(req));
             continue;
         }
-        sectors_xferred = sbd_xfer_reqest(dev, req);
+        sectors_xferred = sbd_xfer_request(dev, req);
         __blk_end_request(req, 0, sectors_xferred);
     }
 
@@ -167,19 +172,18 @@ static void sbd_make_request(struct request_queue *q, struct bio *bio) {
     //Goes through the bio request without a request queue
     status = sbd_xfer_bio(dev, bio);
     bio_endio(bio, status);
-    return 0;
 }
 
 //Open the device
 static int sbd_open(struct block_device *bdev, fmode_t mode) {
     
-    struct sbd_dev *dev = inode->i_bdev->bd_disk->private_data;
+    struct sbd_dev *dev = bdev->bd_disk->private_data;
 
-    del_trime_sync(&dev->time);
+    del_timer_sync(&dev->timer);
     //flip->private_data = dev;
     spin_lock(&dev->lock);
     if(!dev->users)
-        check_disk_change(inode->i_bdev);
+        check_disk_change(bdev);
     dev->users++;
     spin_unlock(&dev->lock);
     return 0;
@@ -188,19 +192,17 @@ static int sbd_open(struct block_device *bdev, fmode_t mode) {
 //Release the device
 static void sbd_release(struct gendisk *disk, fmode_t mode) {
 
-    struct sbd_release(struct inode *inode, struct *file flip)
+    struct sbd_dev *dev = disk->private_data;
 
     spin_lock(&dev->lock);
     dev->users--;
 
     if(!dev->users) {
         dev->timer.expires = jiffies + INVALIDATE_DELAY;
-        add_time(&dev->timer);
+        add_timer(&dev->timer);
     }
 
     spin_unlock(&dev->lock);
-
-    return 0;
 }
 
 //Handle media change
@@ -274,38 +276,76 @@ static struct block_device_operations sbd_ops = {
 
 static void setup_device(struct sbd_dev *dev, int which) {
 
-    memset(dev, 0, sizeof(struct sbd_dev));
+    /*
+     * Get some memory.
+     */
+    memset (dev, 0, sizeof (struct sbd_dev));
     dev->size = nsectors*hardsect_size;
     dev->data = vmalloc(dev->size);
-    if(dev->data == NULL)
-    {
-        printk(KERN_NOTICE "Vmalloc failure\n");
+    if (dev->data == NULL) {
+        printk (KERN_NOTICE "vmalloc failure.\n");
         return;
     }
     spin_lock_init(&dev->lock);
-
-    dev->queue = blk_init_queue(sdb_request, &dev->lock);
     
+    /*
+     * The timer which "invalidates" the device.
+     */
+    init_timer(&dev->timer);
+    dev->timer.data = (unsigned long) dev;
+    dev->timer.function = sbd_invalidate;
+    
+    /*
+     * The I/O queue, depending on whether we are using our own
+     * make_request function or not.
+     */
+    switch (request_mode) {
+        case RM_NOQUEUE:
+        dev->queue = blk_alloc_queue(GFP_KERNEL);
+        if (dev->queue == NULL)
+            goto out_vfree;
+        blk_queue_make_request(dev->queue, sbd_make_request);
+        break;
+
+        case RM_FULL:
+        dev->queue = blk_init_queue(sbd_full_request, &dev->lock);
+        if (dev->queue == NULL)
+            goto out_vfree;
+        break;
+
+        default:
+        printk(KERN_NOTICE "Bad request mode %d, using simple\n", request_mode);
+            /* fall into.. */
+    
+        case RM_SIMPLE:
+        dev->queue = blk_init_queue(sbd_request, &dev->lock);
+        if (dev->queue == NULL)
+            goto out_vfree;
+        break;
+    }
+    blk_queue_logical_block_size(dev->queue, hardsect_size);
+    dev->queue->queuedata = dev;
+    /*
+     * And the gendisk structure.
+     */
     dev->gd = alloc_disk(SBD_MINORS);
-    if(!dev->gd)
-    {
-        printk(KERN_NOTICE "Alloc Disk failure\n");
+    if (! dev->gd) {
+        printk (KERN_NOTICE "alloc_disk failure\n");
         goto out_vfree;
     }
-
     dev->gd->major = sbd_major;
-    dev->gd->first_major = which*SBD_MINORS;
+    dev->gd->first_minor = which*SBD_MINORS;
     dev->gd->fops = &sbd_ops;
     dev->gd->queue = dev->queue;
     dev->gd->private_data = dev;
-    snprintf(dev->gd->disk_name, 32, "sbd%c", which + 'a');
+    snprintf (dev->gd->disk_name, 32, "sbd%c", which + 'a');
     set_capacity(dev->gd, nsectors*(hardsect_size/KERNEL_SECTOR_SIZE));
     add_disk(dev->gd);
     return;
 
   out_vfree:
-        if(dev->data)
-            vfree(dev->data);
+    if (dev->data)
+        vfree(dev->data);
 }
 
 static int __init sbd_init(void) {
@@ -339,7 +379,7 @@ static void sbd_exit(void) {
 
     for(i = 0; i < ndevices; i++)
     {
-        struct sbd_dev *dev = Device + i;
+        struct sbd_dev *dev = Devices + i;
         
         del_timer_sync(&dev->timer);
         if(dev->gd) 

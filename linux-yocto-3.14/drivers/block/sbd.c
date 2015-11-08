@@ -116,9 +116,9 @@ static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {
     bio_for_each_segment(bvec, bio, iter)
     {
         char *buffer = __bio_kmap_atomic(bio, iter);
-        sbd_transfer(dev, sector, bio_cur_sectors(bio),
+        sbd_transfer(dev, sector, bio_cur_bytes(bio),
                 buffer, bio_data_dir(bio) == WRITE);
-        sector += bio_cur_sectors(bio);
+        sector += bio_cur_bytes(bio);
         __bio_kunmap_atomic(bio);
     }
     return 0;

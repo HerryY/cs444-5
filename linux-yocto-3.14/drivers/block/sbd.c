@@ -23,9 +23,13 @@
 #include <linux/bio.h>
 
 static int sbd_major = 0;
+module_param(sbd_major, int, 0);
 static int hardsect_size = 512;
+module_param(hardsect_size, int, 0);
 static int nsectors = 1024;
+module_param(nsectors, int, 0);
 int ndevices = 4;
+module_param(ndevices, int, 0);
 
 //Enumerating the request modes
 enum {
@@ -34,6 +38,7 @@ enum {
     RM_NOQUEUE = 2, /* Use make_request */
 };
 static int request_mode = RM_SIMPLE;
+module_param(request_mode, int, 0);
 
 //Set minor numbers and partition management 
 #define SBD_MINORS  16
@@ -41,7 +46,8 @@ static int request_mode = RM_SIMPLE;
 #define DEVNUM(kdevnum) (MINOR(kdev_t_to_nr(kdevnum)) >> MINOR_SHIFT
 
 //Set sector number so kernel can talk to driver
-#define KERNEL_SECTOR_SIZE  512
+#define KERNEL_SECTOR_SHIFT 9
+#define KERNEL_SECTOR_SIZE  (1<<KERNEL_SECTOR_SHIFT)
 
 //After some idle time, simulate media change
 #define INVALIDATE_DELAY 30*HZ
@@ -84,24 +90,26 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
 static void sbd_request(struct request_queue *q) {
 
     struct request *req;
+    int ret;
 
-    //simplified version of the full request
-    //Gets the next incomplete request on queue
-    while((req = blk_fetch_request(q)) != NULL)
-    {
-        struct sbd_dev *dev = req->rq_disk->private_data;
-        //End request if it's non-fs
-        if(req->cmd_type != REQ_TYPE_FS)
-        {
-            printk(KERN_NOTICE "Skip non-fs request\n");
-            __blk_end_request_cur(req, -EIO);
-            continue;
+    req = blk_fetch_request(q);
+    while (req) {
+        struct sbull_dev *dev = req->rq_disk->private_data;
+        if (req->cmd_type != REQ_TYPE_FS) {
+            printk (KERN_NOTICE "Skip non-fs request\n");
+            ret = -EIO;
+            goto done;
         }
-        //Send request to transfer function
-        sbd_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req),
-                req->buffer, rq_data_dir(req));
-        //Make sure to end request
-        __blk_end_request_cur(req, 1);
+        printk (KERN_NOTICE "Req dev %u dir %d sec %ld, nr %d\n",
+            (unsigned)(dev - Devices), rq_data_dir(req),
+            blk_rq_pos(req), blk_rq_cur_sectors(req));
+        sbull_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req),
+                bio_data(req->bio), rq_data_dir(req));
+        ret = 0;
+    done:
+        if(!__blk_end_request_cur(req, ret)){
+            req = blk_fetch_request(q);
+        }
     }
 }
 
@@ -145,8 +153,8 @@ static int sbd_xfer_request(struct sbd_dev *dev, struct request *req) {
 static void sbd_full_request(struct request_queue *q) {
     
     struct request *req;
-    int sectors_xferred; 
     struct sbd_dev *dev = q->queuedata;
+    int ret;
 
     //Takes request and sends i to xfer_reqest
     while ((req = blk_fetch_request(q)) != NULL)
@@ -155,10 +163,13 @@ static void sbd_full_request(struct request_queue *q) {
         {
             printk(KERN_NOTICE "Skips non-fs request\n");
             __blk_end_request(req, -EIO, blk_rq_cur_bytes(req));
-            continue;
+            ret = -EIO
+            goto done;
         }
-        sectors_xferred = sbd_xfer_request(dev, req);
-        __blk_end_request(req, 0, sectors_xferred);
+        sbd_xfer_request(dev, req);
+        ret - 0;
+    done:
+        __blk_end_request(req, ret);
     }
 
 }
@@ -180,7 +191,6 @@ static int sbd_open(struct block_device *bdev, fmode_t mode) {
     struct sbd_dev *dev = bdev->bd_disk->private_data;
 
     del_timer_sync(&dev->timer);
-    //flip->private_data = dev;
     spin_lock(&dev->lock);
     if(!dev->users)
         check_disk_change(bdev);
@@ -240,12 +250,12 @@ void sbd_invalidate(unsigned long ldev){
 }
 
 //Implementation of ioctl()
-int sbd_ioctl (struct inode *inode, struct file *flip,
+int sbd_ioctl (struct block_device *bdev, fmode_t mode,
                  unsigned int cmd, unsigned long arg){
 
     long size;
     struct hd_geometry geo;
-    struct sbd_dec *dev = flip->private_data;
+    struct sbd_dev *dev = bdev->bd_disk->private_data;
 
     switch(cmd)
     {
@@ -276,9 +286,7 @@ static struct block_device_operations sbd_ops = {
 
 static void setup_device(struct sbd_dev *dev, int which) {
 
-    /*
-     * Get some memory.
-     */
+     // Get some memory.
     memset (dev, 0, sizeof (struct sbd_dev));
     dev->size = nsectors*hardsect_size;
     dev->data = vmalloc(dev->size);
@@ -288,17 +296,13 @@ static void setup_device(struct sbd_dev *dev, int which) {
     }
     spin_lock_init(&dev->lock);
     
-    /*
-     * The timer which "invalidates" the device.
-     */
+    // The timer which "invalidates" the device.
     init_timer(&dev->timer);
     dev->timer.data = (unsigned long) dev;
     dev->timer.function = sbd_invalidate;
     
-    /*
-     * The I/O queue, depending on whether we are using our own
-     * make_request function or not.
-     */
+     // The I/O queue, depending on whether we are using our own
+     // make_request function or not.
     switch (request_mode) {
         case RM_NOQUEUE:
         dev->queue = blk_alloc_queue(GFP_KERNEL);
@@ -319,7 +323,7 @@ static void setup_device(struct sbd_dev *dev, int which) {
     
         case RM_SIMPLE:
         dev->queue = blk_init_queue(sbd_request, &dev->lock);
-        if (dev->queue == NULL)
+udo dhclient        if (dev->queue == NULL)
             goto out_vfree;
         break;
     }
@@ -338,7 +342,7 @@ static void setup_device(struct sbd_dev *dev, int which) {
     dev->gd->fops = &sbd_ops;
     dev->gd->queue = dev->queue;
     dev->gd->private_data = dev;
-    snprintf (dev->gd->disk_name, 32, "sbd%c", which + 'a');
+    snprintf (dev->gd->disk_name, 32, "sbfahlman%c", which + 'a');
     set_capacity(dev->gd, nsectors*(hardsect_size/KERNEL_SECTOR_SIZE));
     add_disk(dev->gd);
     return;
@@ -390,7 +394,7 @@ static void sbd_exit(void) {
         if(dev->queue)
         {
             if(request_mode == RM_NOQUEUE)
-                kobject_put(&dev->queue->kobj);
+                blk_put_queue(dev->queue);
             else
                 blk_cleanup_queue(dev->queue);
         }

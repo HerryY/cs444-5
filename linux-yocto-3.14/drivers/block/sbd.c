@@ -108,7 +108,7 @@ static void sbd_request(struct request_queue *q) {
 //Tranfer one bio structre
 static int sbd_xfer_bio(struct sbd_dev *dev, struct bio *bio) {
 
-    struct bio_vec *bvec;
+    struct bio_vec bvec;
     struct bvec_iter iter;
     sector_t sector = bio->bi_iter.bi_sector;
 

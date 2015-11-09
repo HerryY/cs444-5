@@ -53,6 +53,8 @@ module_param(request_mode, int, 0);
 //After some idle time, simulate media change
 #define INVALIDATE_DELAY 30*HZ
 
+struct crypto_cipher *cipher;
+
 //Struct to represent the device
 struct sbd_dev {
         int size;                       /* Device size in sectors */
@@ -72,6 +74,7 @@ static struct sbd_dev *Devices = NULL;
 static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
         unsigned long nsect, char *buffer, int write) {
 
+    int i;
     unsigned long offset = sector*KERNEL_SECTOR_SIZE;
     unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
 
@@ -81,10 +84,33 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
         return;
     }
 
+    //If it's a write request
     if(write)
-        memcpy(dev->data + offset, buffer, nbytes);
+    {
+        //Encrypt each byte
+        //For each byte
+        for(i = 0; i < nbytes; i += crypto_cypher_blocksize(cipher))
+        {
+            //Takes the cipher block, and encypts each byte then writes it in the buffer
+            crypto_cipher_encrypt_one(cipher, dev->data+offset+i, buffer+i);
+        }
+        else
+        {
+            memcpy(dev->data + offset, buffer, nbytes);
+        }
+    }
+    //Else, it must be a read request
     else
-        memcpy(buffer, dev->data + offset, nbytes);
+    {
+        for(i = 0; i < nbytes; i += crypto_cypher_blocksize(cipher))
+        {
+            crypto_cipher_decrypt_one(cipher, dev->data+offset+i, buffer+i);
+        }
+        else
+        {
+            memcpy(buffer, dev->data + offset, nbytes);
+        }
+    }
 }
 
 //Simple request handling
@@ -353,6 +379,9 @@ static int __init sbd_init(void) {
 
     int i;
 
+    //Initialize the cipher as an aes cipher with default type and mask
+    cipher = crypto_alloc_cipher("aes", 0, 0);
+
     sbd_major = register_blkdev(sbd_major, "sbd");
     if(sbd_major <= 0)
     {
@@ -370,6 +399,7 @@ static int __init sbd_init(void) {
     return 0;
 
   out_unregister:
+      crypto_free_cipher(cipher);
       unregister_blkdev(sbd_major, "sbd");
       return -ENOMEM;
 }
@@ -378,6 +408,8 @@ static void sbd_exit(void) {
 
     int i;
 
+    //Free the cipher
+    crypto_free_cipher(cipher);
     for(i = 0; i < ndevices; i++)
     {
         struct sbd_dev *dev = Devices + i;

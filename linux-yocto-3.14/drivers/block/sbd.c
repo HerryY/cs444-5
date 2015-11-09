@@ -94,17 +94,13 @@ static void sbd_request(struct request_queue *q) {
 
     req = blk_fetch_request(q);
     while (req) {
-        struct sbull_dev *dev = req->rq_disk->private_data;
+        struct sbd_dev *dev = req->rq_disk->private_data;
         if (req->cmd_type != REQ_TYPE_FS) {
             printk (KERN_NOTICE "Skip non-fs request\n");
             ret = -EIO;
             goto done;
         }
-        printk (KERN_NOTICE "Req dev %u dir %d sec %ld, nr %d\n",
-            (unsigned)(dev - Devices), rq_data_dir(req),
-            blk_rq_pos(req), blk_rq_cur_sectors(req));
-        sbull_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req),
-                bio_data(req->bio), rq_data_dir(req));
+        sbd_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req), bio_data(req->bio), rq_data_dir(req));
         ret = 0;
     done:
         if(!__blk_end_request_cur(req, ret)){
@@ -163,13 +159,13 @@ static void sbd_full_request(struct request_queue *q) {
         {
             printk(KERN_NOTICE "Skips non-fs request\n");
             __blk_end_request(req, -EIO, blk_rq_cur_bytes(req));
-            ret = -EIO
+            ret = -EIO;
             goto done;
         }
         sbd_xfer_request(dev, req);
-        ret - 0;
+        ret = 0;
     done:
-        __blk_end_request(req, ret);
+        __blk_end_request_all(req, ret);
     }
 
 }
@@ -323,7 +319,7 @@ static void setup_device(struct sbd_dev *dev, int which) {
     
         case RM_SIMPLE:
         dev->queue = blk_init_queue(sbd_request, &dev->lock);
-udo dhclient        if (dev->queue == NULL)
+        if(dev->queue == NULL)
             goto out_vfree;
         break;
     }

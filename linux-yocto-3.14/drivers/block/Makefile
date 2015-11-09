@@ -5,6 +5,8 @@
 # Rewritten to use lists instead of if-statements.
 # 
 
+
+obj-$(CONFIG_CRYPTO_RD)		+= ramdisk.o
 obj-$(CONFIG_MAC_FLOPPY)	+= swim3.o
 obj-$(CONFIG_BLK_DEV_SWIM)	+= swim_mod.o
 obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o
@@ -45,7 +47,6 @@ obj-$(CONFIG_BLK_DEV_NULL_BLK)	+= null_blk.o
 obj-$(CONFIG_ZRAM) += zram/
 
 
-obj-$(CONFIG_CRYPTO_RD)		+= sbd.o
 
 nvme-y		:= nvme-core.o nvme-scsi.o
 skd-y		:= skd_main.o

@@ -23,6 +23,8 @@
 #include <linux/bio.h>
 #include <linux/crypto.h>
 
+MODULE_LICENSE("GPL");
+
 static int sbd_major = 0;
 module_param(sbd_major, int, 0);
 static int hardsect_size = 512;
@@ -54,12 +56,12 @@ module_param(request_mode, int, 0);
 #define INVALIDATE_DELAY 30*HZ
 
 #define KEY_SIZE 32
-static char crypto_key[KEY_SIZE];
+static char *crypto_key = "hello";
 static int key_size = 0;
 
+//module_param(key, charp, S_IRUGO);
 
 struct crypto_cipher *cipher;
-
 
 //Struct to represent the device
 struct sbd_dev {
@@ -74,7 +76,8 @@ struct sbd_dev {
 };
 
 static struct sbd_dev *Devices = NULL;
-
+/*
+ 
 
 ssize_t key_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -97,6 +100,8 @@ ssize_t key_store(struct device *dev, struct device_attribute *attr, const char 
 }
 
 DEVICE_ATTR(key, 0600, key_show, key_store);
+*/
+
 
 //Handle IO request at hte lowest level
 static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
@@ -115,8 +120,10 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
     //If it's a write request
     if(write)
     {
+        printk("Writing\n");
         if(key_size != 0)
         {
+            printk("Encrypting\n");
             //Encrypt each byte
             //For each byte
             for(i = 0; i < nbytes; i += crypto_cipher_blocksize(cipher))
@@ -133,8 +140,10 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
     //Else, it must be a read request
     else
     {
+        printk("Reading\n");
         if(key_size != 0)
         {
+            printk("decrypting\n");
             for(i = 0; i < nbytes; i += crypto_cipher_blocksize(cipher))
             {
                 crypto_cipher_decrypt_one(cipher, dev->data+offset+i, buffer+i);
@@ -416,6 +425,7 @@ static int __init sbd_init(void) {
     //Initialize the cipher as an aes cipher with default type and mask
     cipher = crypto_alloc_cipher("aes", 0, 0);
     crypto_cipher_clear_flags(cipher, ~0);
+    key_size = strlen(crypto_key);
     crypto_cipher_setkey(cipher, crypto_key, key_size);
 
 

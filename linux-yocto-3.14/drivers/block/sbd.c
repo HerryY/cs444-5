@@ -53,7 +53,13 @@ module_param(request_mode, int, 0);
 //After some idle time, simulate media change
 #define INVALIDATE_DELAY 30*HZ
 
+#define KEY_SIZE 32
+static char crypto_key[KEY_SIZE];
+static int key_size = 0;
+
+
 struct crypto_cipher *cipher;
+
 
 //Struct to represent the device
 struct sbd_dev {
@@ -69,6 +75,28 @@ struct sbd_dev {
 
 static struct sbd_dev *Devices = NULL;
 
+
+ssize_t key_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    printk(KERN_DEBUG "crypt: Copying key\n");
+    return scnprintf(buf, PAGE_SIZE, "%s\n", crypto_key);
+}
+
+ssize_t key_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+    if(count != 16 && count !=24 && count != 32)
+    {
+        printk(KERN_WARNING "Crpyt: invalid key size %d\n", count);
+        return -EINVAL;
+    }
+
+    printk(KERN_DEBUG "crpyt: storing key\n");
+    snprintf(crypto_key, sizeof(crypto_key), "%.*s", (int)min(count, sizeof(crypto_key) - 1), buf);
+    key_size = count;
+    return count;
+}
+
+DEVICE_ATTR(key, 0600, key_show, key_store);
 
 //Handle IO request at hte lowest level
 static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
@@ -87,12 +115,15 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
     //If it's a write request
     if(write)
     {
-        //Encrypt each byte
-        //For each byte
-        for(i = 0; i < nbytes; i += crypto_cypher_blocksize(cipher))
+        if(key_size != 0)
         {
-            //Takes the cipher block, and encypts each byte then writes it in the buffer
-            crypto_cipher_encrypt_one(cipher, dev->data+offset+i, buffer+i);
+            //Encrypt each byte
+            //For each byte
+            for(i = 0; i < nbytes; i += crypto_cipher_blocksize(cipher))
+            {
+                //Takes the cipher block, and encypts each byte then writes it in the buffer
+                crypto_cipher_encrypt_one(cipher, dev->data+offset+i, buffer+i);
+            }
         }
         else
         {
@@ -102,9 +133,12 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
     //Else, it must be a read request
     else
     {
-        for(i = 0; i < nbytes; i += crypto_cypher_blocksize(cipher))
+        if(key_size != 0)
         {
-            crypto_cipher_decrypt_one(cipher, dev->data+offset+i, buffer+i);
+            for(i = 0; i < nbytes; i += crypto_cipher_blocksize(cipher))
+            {
+                crypto_cipher_decrypt_one(cipher, dev->data+offset+i, buffer+i);
+            }
         }
         else
         {
@@ -381,6 +415,9 @@ static int __init sbd_init(void) {
 
     //Initialize the cipher as an aes cipher with default type and mask
     cipher = crypto_alloc_cipher("aes", 0, 0);
+    crypto_cipher_clear_flags(cipher, ~0);
+    crypto_cipher_setkey(cipher, crypto_key, key_size);
+
 
     sbd_major = register_blkdev(sbd_major, "sbd");
     if(sbd_major <= 0)

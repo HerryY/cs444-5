@@ -6,7 +6,7 @@
 # 
 
 
-obj-$(CONFIG_CRYPTO_RD)		+= ramdisk.o
+obj-$(CONFIG_CRYPTO_RD)		+= sbd.o
 obj-$(CONFIG_MAC_FLOPPY)	+= swim3.o
 obj-$(CONFIG_BLK_DEV_SWIM)	+= swim_mod.o
 obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o

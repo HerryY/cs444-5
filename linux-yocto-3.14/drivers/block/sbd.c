@@ -21,6 +21,7 @@
 #include <linux/blkdev.h>
 #include <linux/buffer_head.h> /* invalidate_bdev */
 #include <linux/bio.h>
+#include <linux/crypto.h>
 
 static int sbd_major = 0;
 module_param(sbd_major, int, 0);

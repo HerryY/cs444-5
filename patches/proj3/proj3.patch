@@ -94,10 +94,10 @@ diff -urN old/sbd.c new/sbd.c
 +#define INVALIDATE_DELAY 30*HZ
 +
 +#define KEY_SIZE 32
-+static char *crypto_key = "hello";
++static char *crypto_key[KEY_SIZE;
 +static int key_size = 0;
 +
-+//module_param(key, charp, S_IRUGO);
++module_param(key, charp, S_IRUGO);
 +
 +struct crypto_cipher *cipher;
 +

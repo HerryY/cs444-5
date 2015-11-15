@@ -31,6 +31,29 @@ void sig_catch(int sig){
 
 void process (void *buffer)
 {
+    int zero = 0;
+    if(counter > 0)
+    {
+        zero = 1;
+    }
+    while(zero == 0)
+    {
+        printf("Waiting\n");
+        sleep(5);
+        if(counter == 3)
+        {   
+            printf("Done waiting\n");
+            zero = 1;
+        }
+    }
+    sem_wait(&buf.mutex);
+    counter = counter - 1;
+
+    printf("Working\n"):
+    sleep(100);
+
+    sem_post(&buf.mutex);
+    counter = counter +1;
 
 }
 

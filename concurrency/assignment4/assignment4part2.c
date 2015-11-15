@@ -12,7 +12,9 @@
 #include <signal.h>
 
 void sig_catch(int sig);
-int generate_random_number(int upper_time_limit, int lower_time_limit);
+void barber(void *);
+void customer(void *);
+void get_hair_cut(void);
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
@@ -20,6 +22,24 @@ void sig_catch(int sig){
     exit(0);
 }
 
+void barber(void *queue)
+{
+
+}
+
+void customer(void *queue)
+{
+
+}
+
+void get_hair_cut()
+{
+
+}
+
 int main(int argc, char **argv) {
+
+    
+    
 
 }

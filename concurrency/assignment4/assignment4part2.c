@@ -30,7 +30,7 @@ struct line {
     int number_of_customers;
     int chairs;
     struct chair *current;
-    struct chair *head;
+    struct chair *next;
 };
 
 struct line global_queue;

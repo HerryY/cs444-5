@@ -44,9 +44,23 @@ void sig_catch(int sig){
 
 void barber(void *queue)
 {
-    while(
+    int i;
 
-
+    for(;;)
+    {
+        i = 0;
+        while(global_queue.number_of_customers == 0)
+        {
+            printf("The Barber is sleeping\n");
+            sleep(5);
+        }
+    
+        for(i = 0; i < global_queue.number_of_customers; i++)
+        {
+            //accuire mutex
+            cut_hair();
+        }
+    }
 }
 
 void customer(void *queue)

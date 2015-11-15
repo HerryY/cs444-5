@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <semaphore.h>
 
 void sig_catch(int sig);
 void process(void *);

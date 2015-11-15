@@ -5,13 +5,13 @@ LATEX=pdflatex
 all: assignment4part1 assignment4part2
 
 assignment4part2: assignment4part2.o
-	$(CC) assignment4part2.o -o a4part2 -pthread
+	$(CC) assignment4part2.o -o a4part2 -lpthread
 
 assignment4part2.o:
 	$(CC) -c assignment4part2.c $(CFLAGS)
 
 assignment4part1: assignment4part1.o
-	$(CC) assignment4part1.o -o a4part1 -pthread
+	$(CC) assignment4part1.o -o a4part1 -lpthread
 
 assignment4part1.o:
 	$(CC) -c assignment4part1.c $(CFLAGS)

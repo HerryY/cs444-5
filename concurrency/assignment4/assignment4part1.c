@@ -12,14 +12,34 @@
 #include <signal.h>
 
 void sig_catch(int sig);
-int generate_random_number(int upper_time_limit, int lower_time_limit);
+void process(void *);
 
+struct buffer {
+    int number;
+    sem_t mutex;    
+};
+
+struct buffer buf;
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
     kill(0,sig);
     exit(0);
 }
 
-int main(int argc, char **argv) {
+void process (void *buffer)
+{
 
+}
+
+int main(int argc, char **argv) {
+ 
+    void *proc_function = process;
+
+    //Init the semaphore to 3 
+    sem_init(&buf.mutex, 0, 3);
+
+
+    for(;;){
+
+    }
 }

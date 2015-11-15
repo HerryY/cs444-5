@@ -25,6 +25,7 @@ int counter;
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
+    sem_destroy(&buf.mutex);
     kill(0,sig);
     exit(0);
 }
@@ -49,8 +50,9 @@ void process (void *buffer)
     sem_wait(&buf.mutex);
     counter = counter - 1;
 
-    printf("Working\n"):
-    sleep(100);
+    printf("Working\n");
+    sleep(10);
+    printf("Done working\n");
 
     sem_post(&buf.mutex);
     counter = counter +1;
@@ -59,11 +61,26 @@ void process (void *buffer)
 
 int main(int argc, char **argv) {
  
-    void *proc_function = process;
+    void *proc_func = process;
+    struct sigaction sig;
+    pthread_t p1, p2, p3, p4, p5, p6;
+
+    sigemptyset(&sig.sa_mask);
+    sig.sa_flags = 0;
+    sig.sa_handler = sig_catch;
+    sigaction(SIGINT, &sig, NULL);
+
 
     //Init the semaphore to 3 
     sem_init(&buf.mutex, 0, 3);
     counter = 3;   
+
+    pthread_create(&p1, NULL, proc_func, NULL);
+    pthread_create(&p2, NULL, proc_func, NULL);
+    pthread_create(&p3, NULL, proc_func, NULL);
+    pthread_create(&p4, NULL, proc_func, NULL);
+    pthread_create(&p5, NULL, proc_func, NULL);
+    pthread_create(&p6, NULL, proc_func, NULL);
 
     for(;;){
 

@@ -21,6 +21,8 @@ struct buffer {
 };
 
 struct buffer buf;
+int counter;
+
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
     kill(0,sig);
@@ -38,7 +40,7 @@ int main(int argc, char **argv) {
 
     //Init the semaphore to 3 
     sem_init(&buf.mutex, 0, 3);
-
+    counter = 3;   
 
     for(;;){
 

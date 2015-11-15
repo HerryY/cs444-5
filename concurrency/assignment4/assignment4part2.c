@@ -15,6 +15,7 @@ void sig_catch(int sig);
 void barber(void *);
 void customer(void *);
 void get_hair_cut(void);
+void cut_hair(void);
 
 void sig_catch(int sig){
     printf("Catching signal %d\n", sig);
@@ -28,6 +29,12 @@ void barber(void *queue)
 }
 
 void customer(void *queue)
+{
+
+}
+
+
+void cut_hair()
 {
 
 }

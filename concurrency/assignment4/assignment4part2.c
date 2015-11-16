@@ -68,7 +68,23 @@ void barber(void *queue)
 
 void customer(void *queue)
 {
+    //Sees if there is room in the queue
+    if(global_queue.number_of_customers >= 4)
+    {
+        printf("Line is full. Leaving\n");
+        return;
+    }
+    global_queue.number_of_customers++;
 
+    //Add self to queue
+
+    //get mutex
+    get_hair_cut();
+    //release mutex
+    
+    //Remove self from queue
+    //pop
+    
 }
 
 

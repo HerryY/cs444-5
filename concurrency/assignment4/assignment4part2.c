@@ -58,6 +58,7 @@ void line_push(void)
         ref = ref->next;  
     }
     ref->next = &new;
+    global_queue.number_of_customers++;
 
 }
 
@@ -93,9 +94,9 @@ void customer(void *queue)
         printf("Line is full. Leaving\n");
         return;
     }
-    global_queue.number_of_customers++;
 
     //Add self to queue
+    
 
     //get mutex
     get_hair_cut();

@@ -33,6 +33,7 @@ struct line {
     struct chair *next;
 };
 
+pthread_mutex_t barber_lock;
 struct line global_queue;
 
 void sig_catch(int sig){
@@ -58,6 +59,9 @@ void barber(void *queue)
         for(i = 0; i < global_queue.number_of_customers; i++)
         {
             //accuire mutex
+             
+            
+            //Cut hair
             cut_hair();
         }
     }

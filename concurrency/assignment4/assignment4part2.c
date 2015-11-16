@@ -58,9 +58,6 @@ void barber(void *queue)
     
         for(i = 0; i < global_queue.number_of_customers; i++)
         {
-            //accuire mutex
-             
-            
             //Cut hair
             cut_hair();
         }
@@ -75,12 +72,17 @@ void customer(void *queue)
 
 void cut_hair()
 {
-
+    printf("Cutting hair\n");
+    sleep(10);
+    printf("Done cutting hair\n");
 }
 
 void get_hair_cut()
 {
-
+    printf("Getting hair cut\n");
+    sleep(10);
+    printf("Done getting hair cut\n");
+    
 }
 
 int main(int argc, char **argv) {

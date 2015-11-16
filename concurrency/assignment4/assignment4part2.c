@@ -58,7 +58,7 @@ void barber(void *queue)
             sleep(5);
         }
     
-        for(i = 0; i < global_queue.number_of_customers; i++)
+        for(i = 0; i < copy_of_customer_number; i++)
         {
             //Cut hair
             cut_hair();
@@ -74,6 +74,7 @@ void customer(void *queue)
 
 void cut_hair()
 {
+    
     printf("Cutting hair\n");
     sleep(10);
     printf("Done cutting hair\n");

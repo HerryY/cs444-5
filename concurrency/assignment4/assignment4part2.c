@@ -21,7 +21,6 @@ void line_push(void);
 
 struct chair {
 
-    int taken;
     struct chair *next;
 };
 
@@ -42,6 +41,26 @@ void sig_catch(int sig){
     kill(0,sig);
     exit(0);
 }
+
+void line_push(void)
+{
+    struct chair new;
+    struct chair *ref = global_queue.current;
+
+    //Double check that the queue isn't full
+    if(global_queue.number_of_customers >= global_queue.chairs)
+    {
+        return;
+    }
+    new.next = NULL;
+    while(global_queue.next != NULL)
+    {
+        ref = ref->next;  
+    }
+    ref->next = &new;
+
+}
+
 
 void barber(void *queue)
 {
@@ -69,7 +88,7 @@ void barber(void *queue)
 void customer(void *queue)
 {
     //Sees if there is room in the queue
-    if(global_queue.number_of_customers >= 4)
+    if(global_queue.number_of_customers >= global_queue.chairs)
     {
         printf("Line is full. Leaving\n");
         return;
@@ -88,7 +107,7 @@ void customer(void *queue)
 }
 
 
-void cut_hair()
+void cut_hair(void)
 {
     
     printf("Cutting hair\n");
@@ -96,7 +115,7 @@ void cut_hair()
     printf("Done cutting hair\n");
 }
 
-void get_hair_cut()
+void get_hair_cut(void)
 {
     printf("Getting hair cut\n");
     sleep(10);

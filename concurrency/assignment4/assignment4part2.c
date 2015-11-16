@@ -46,10 +46,12 @@ void sig_catch(int sig){
 void barber(void *queue)
 {
     int i;
+    int copy_of_customer_number;
 
     for(;;)
     {
         i = 0;
+        copy_of_customer_number = global_queue.number_of_customers;
         while(global_queue.number_of_customers == 0)
         {
             printf("The Barber is sleeping\n");
@@ -87,7 +89,10 @@ void get_hair_cut()
 
 int main(int argc, char **argv) {
 
-    
+    for(;;)
+    {
+
+    }
     
 
 }

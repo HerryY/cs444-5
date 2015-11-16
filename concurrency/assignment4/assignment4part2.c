@@ -95,8 +95,7 @@ void customer(void *queue)
         return;
     }
 
-    //Add self to queue
-    
+    line_push(); 
 
     //get mutex
     get_hair_cut();

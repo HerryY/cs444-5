@@ -62,6 +62,17 @@ void line_push(void)
 
 }
 
+void line_pop(void)
+{
+    struct chair *ref = global_queue.current;
+    
+    global_queue.current = global_queue.next;
+    global_queue.next = global_queue.current->next;
+    global_queue.number_of_customers--;
+
+    ref = NULL;
+
+}
 
 void barber(void *queue)
 {
@@ -98,12 +109,13 @@ void customer(void *queue)
     line_push(); 
 
     //get mutex
+    pthread_mutex_lock(&barber_lock);
     get_hair_cut();
     //release mutex
-    
-    //Remove self from queue
-    //pop
-    
+    pthread_mutex_unlock(&barber_lock);
+
+    line_pop();
+
 }
 
 
@@ -125,6 +137,7 @@ void get_hair_cut(void)
 
 int main(int argc, char **argv) {
 
+    
     for(;;)
     {
 

@@ -33,6 +33,7 @@ struct line {
 };
 
 pthread_mutex_t barber_lock;
+pthread_mutex_t add_lock;
 struct line global_queue;
 
 void sig_catch(int sig){
@@ -65,10 +66,13 @@ void line_push(void)
 void line_pop(void)
 {
     struct chair *ref = global_queue.current;
-    
-    global_queue.current = global_queue.next;
-    global_queue.next = global_queue.current->next;
+
     global_queue.number_of_customers--;
+    global_queue.current = global_queue.next;
+    if(global_queue.next != NULL)
+    {
+        global_queue.next = global_queue.current->next;
+    }
 
     ref = NULL;
 
@@ -106,8 +110,11 @@ void customer(void *queue)
         return;
     }
 
-    line_push(); 
+    pthread_mutex_lock(&add_lock);
+    line_push();
+    pthread_mutex_unlock(&add_lock);
 
+    printf("In chair waiting\n");
     //get mutex
     pthread_mutex_lock(&barber_lock);
     get_hair_cut();
@@ -139,13 +146,18 @@ int main(int argc, char **argv) {
     pthread_t c1, c2, c3, c4;
     void *barber_func = barber;
     void *customer_func = customer;
-    
+    struct chair one;
+
     struct sigaction sig;
     sig.sa_flags = 0;
     sig.sa_handler = sig_catch;
     sigaction(SIGINT, &sig, NULL);
+
+    one.next = NULL;
+    global_queue.current = &one;
     
     pthread_mutex_init(&barber_lock, NULL);
+    pthread_mutex_init(&add_lock, NULL);
 
     global_queue.chairs = 3;
     global_queue.number_of_customers = 0;

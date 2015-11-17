@@ -112,10 +112,8 @@ void customer(void *queue)
     pthread_mutex_lock(&barber_lock);
     get_hair_cut();
     //release mutex
-    pthread_mutex_unlock(&barber_lock);
-
     line_pop();
-
+    pthread_mutex_unlock(&barber_lock);
 }
 
 
@@ -137,11 +135,32 @@ void get_hair_cut(void)
 
 int main(int argc, char **argv) {
 
+    pthread_t barber_thread;
+    pthread_t c1, c2, c3, c4;
+    void *barber_func = barber;
+    void *customer_func = customer;
     
+    struct sigaction sig;
+    sig.sa_flags = 0;
+    sig.sa_handler = sig_catch;
+    sigaction(SIGINT, &sig, NULL);
+    
+    pthread_mutex_init(&barber_lock, NULL);
+
+    global_queue.chairs = 3;
+    global_queue.number_of_customers = 0;
+
+    pthread_create(&barber_thread, NULL, barber_func, NULL);
+    sleep(5);
+
+    pthread_create(&c1, NULL, customer_func, NULL);
+    pthread_create(&c2, NULL, customer_func, NULL);
+    pthread_create(&c3, NULL, customer_func, NULL);
+    pthread_create(&c4, NULL, customer_func, NULL);
+
     for(;;)
     {
 
+        
     }
-    
-
 }

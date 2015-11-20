@@ -635,8 +635,17 @@ struct kmem_cache kmem_cache_boot = {
 
 asmlinkage long sys_slob_used(void) {
 
-    printk("Hello World!\n");
+    printk("Hello from slob used\n");
+    return 0;
 }
+
+asmlinkage long sys_slob_free(void) {
+
+    printk("Hello from slob free\n");
+    return 0;
+        
+}
+
 void __init kmem_cache_init(void)
 {
 	kmem_cache = &kmem_cache_boot;

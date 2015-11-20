@@ -633,6 +633,10 @@ struct kmem_cache kmem_cache_boot = {
 	.align = ARCH_KMALLOC_MINALIGN,
 };
 
+asmlinkage long sys_slob_used(void) {
+
+    printk("Hello World!\n");
+}
 void __init kmem_cache_init(void)
 {
 	kmem_cache = &kmem_cache_boot;

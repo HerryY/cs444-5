@@ -642,8 +642,9 @@ struct kmem_cache kmem_cache_boot = {
 
 asmlinkage long sys_slob_used(void) {
 
-    printk("Hello from used\n");
-    return 0;
+    long slob_total_used = SLOB_UNITS(PAGE_SIZE) * page_count_slob;
+
+    return slob_total_used;
 }
 
 asmlinkage long sys_slob_free(void) {

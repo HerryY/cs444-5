@@ -642,6 +642,7 @@ struct kmem_cache kmem_cache_boot = {
 
 asmlinkage long sys_slob_used(void) {
 
+    //used = page size * number of pages
     long slob_total_used = SLOB_UNITS(PAGE_SIZE) * page_count_slob;
 
     return slob_total_used;
@@ -649,8 +650,34 @@ asmlinkage long sys_slob_used(void) {
 
 asmlinkage long sys_slob_free(void) {
 
-    printk("Hello from free\n");
-    return 0;
+    long slob_total_free;
+    struct slob_page *sp;
+    struct list_head *slob_list;
+
+    //Need to iterate through all linked lists and add up free space
+    
+    //Smallest first
+    slob_list = &free_slob_small;
+    list_for_each_entry(sp, slob_list)
+    {
+       slob_total_free += sp->units;
+    }
+
+    //Medium
+    slop_list = &free_slob_medium;
+    list_for_each_entry(sp, slob_list)
+    {
+        slob_total_free += sp->units;
+    }
+
+    //largest
+    slob_lis = &free_slob_large;
+    list_for_each_entry(sp, slob_list)
+    {
+        slob_total_free += sp->units;
+    }
+
+    return slob_total_free;
 }
 
 void __init kmem_cache_init(void)

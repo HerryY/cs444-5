@@ -67,9 +67,10 @@
 #include <linux/rcupdate.h>
 #include <linux/list.h>
 #include <linux/kmemleak.h>
-
+#include <linux/syscalls.h>
 #include <trace/events/kmem.h>
 
+#include <linux/linkage.h>
 #include <linux/atomic.h>
 
 #include "slab.h"
@@ -86,6 +87,8 @@ typedef s16 slobidx_t;
 #else
 typedef s32 slobidx_t;
 #endif
+
+unsigned long page_count_slob = 0; 
 
 struct slob_block {
 	slobidx_t units;
@@ -133,7 +136,6 @@ struct slob_rcu {
 	struct rcu_head head;
 	int size;
 };
-
 /*
  * slob_lock protects all slob allocator structures.
  */
@@ -268,6 +270,7 @@ static void *slob_page_alloc(struct page *sp, size_t size, int align)
 static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 {
 	struct page *sp;
+    struct page *sp_other;
 	struct list_head *prev;
 	struct list_head *slob_list;
 	slob_t *b = NULL;
@@ -328,6 +331,8 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		b = slob_page_alloc(sp, size, align);
 		BUG_ON(!b);
 		spin_unlock_irqrestore(&slob_lock, flags);
+        //Allocated a new page
+        page_count_slob++;
 	}
 	if (unlikely((gfp & __GFP_ZERO) && b))
 		memset(b, 0, size);
@@ -362,6 +367,8 @@ static void slob_free(void *block, int size)
 		__ClearPageSlab(sp);
 		page_mapcount_reset(sp);
 		slob_free_pages(b, 0);
+        //Freed page, decremeount page count
+        page_count_slob--;
 		return;
 	}
 
@@ -635,15 +642,14 @@ struct kmem_cache kmem_cache_boot = {
 
 asmlinkage long sys_slob_used(void) {
 
-    printk("Hello from slob used\n");
+    printk("Hello from used\n");
     return 0;
 }
 
 asmlinkage long sys_slob_free(void) {
 
-    printk("Hello from slob free\n");
+    printk("Hello from free\n");
     return 0;
-        
 }
 
 void __init kmem_cache_init(void)

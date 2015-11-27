@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2013.9.25)  20 NOV 2015 11:25
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2013.9.25)  27 NOV 2015 15:31
 entering extended mode
  %&-line parsing enabled.
 **writeup.tex
@@ -308,8 +308,7 @@ File: hpdftex.def 2007/02/07 v6.75r Hyperref driver for pdfTeX
 \Fld@listcount=\count123
 )
 Package hyperref Info: Option `colorlinks' set `true' on input line 40.
-
-No file writeup.aux.
+ (./writeup.aux)
 \openout1 = `writeup.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 42.
@@ -366,6 +365,7 @@ driver: pdftex
 (1in=72.27pt, 1cm=28.45pt)
 -----------------------
 Package hyperref Info: Link coloring ON on input line 42.
+
 (/usr/share/texmf/tex/latex/hyperref/nameref.sty
 Package: nameref 2006/12/27 v2.28 Cross-referencing by name of section
 
@@ -376,11 +376,13 @@ Package: refcount 2006/02/20 v3.0 Data extraction from references (HO)
 )
 LaTeX Info: Redefining \ref on input line 42.
 LaTeX Info: Redefining \pageref on input line 42.
+ (./writeup.out)
+(./writeup.out)
 \@outlinefile=\write3
 \openout3 = `writeup.out'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 49--53
+Underfull \hbox (badness 10000) in paragraph at lines 52--56
 
  []
 
@@ -397,107 +399,131 @@ File: umsb.fd 2002/01/19 v2.2g AMS font definitions
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.9 ...e. If so, increments number, and calls get_
-                                                  hair_cut\\\hline
+l.5 ...or Fahlman & Calculated free space in slob_
+                                                  alloc\\\hline
 ? 
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \endtemplate 
-l.9 ...ents number, and calls get_hair_cut\\\hline
+l.5 ...Calculated free space in slob_alloc\\\hline
                                                   
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.9 ...ents number, and calls get_hair_cut\\\hline
+l.5 ...Calculated free space in slob_alloc\\\hline
                                                   
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.9 ...ents number, and calls get_hair_cut\\\hline
+l.5 ...Calculated free space in slob_alloc\\\hline
                                                   
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.37 ...7}{31dc222} & Taylor Fahlman & Fixed xfer_
+l.22 .... If so, increments number, and calls get_
+                                                  hair_cut\\\hline
+? 
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \endtemplate 
+l.22 ...nts number, and calls get_hair_cut\\\hline
+                                                  
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.22 ...nts number, and calls get_hair_cut\\\hline
+                                                  
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.22 ...nts number, and calls get_hair_cut\\\hline
+                                                  
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.50 ...7}{31dc222} & Taylor Fahlman & Fixed xfer_
                                                   bio based on new code\\\hline
 
 ? 
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \endtemplate 
-l.37 ...& Fixed xfer_bio based on new code\\\hline
+l.50 ...& Fixed xfer_bio based on new code\\\hline
                                                   
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.37 ...& Fixed xfer_bio based on new code\\\hline
+l.50 ...& Fixed xfer_bio based on new code\\\hline
                                                   
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.37 ...& Fixed xfer_bio based on new code\\\hline
+l.50 ...& Fixed xfer_bio based on new code\\\hline
                                                   
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.51 ...be95ed6}{556b807} & Taylor Fahlman & xfer_
+l.64 ...be95ed6}{556b807} & Taylor Fahlman & xfer_
                                                   bio, from ldd3\\\hline
 ? 
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \endtemplate 
-l.51 ...ylor Fahlman & xfer_bio, from ldd3\\\hline
+l.64 ...ylor Fahlman & xfer_bio, from ldd3\\\hline
                                                   
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.51 ...ylor Fahlman & xfer_bio, from ldd3\\\hline
+l.64 ...ylor Fahlman & xfer_bio, from ldd3\\\hline
                                                   
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.51 ...ylor Fahlman & xfer_bio, from ldd3\\\hline
+l.64 ...ylor Fahlman & xfer_bio, from ldd3\\\hline
                                                   
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.52 ...04546f3}{043e549} & Taylor Fahlman & xfer_
+l.65 ...04546f3}{043e549} & Taylor Fahlman & xfer_
                                                   request, from ldd3\\\hline
 ? 
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \endtemplate 
-l.52 ... Fahlman & xfer_request, from ldd3\\\hline
+l.65 ... Fahlman & xfer_request, from ldd3\\\hline
                                                   
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.52 ... Fahlman & xfer_request, from ldd3\\\hline
+l.65 ... Fahlman & xfer_request, from ldd3\\\hline
                                                   
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.52 ... Fahlman & xfer_request, from ldd3\\\hline
+l.65 ... Fahlman & xfer_request, from ldd3\\\hline
                                                   
 ? 
 )
-Overfull \hbox (453.15933pt too wide) in paragraph at lines 1--55
+Overfull \hbox (453.15933pt too wide) in paragraph at lines 1--58
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1--55
+Underfull \hbox (badness 10000) in paragraph at lines 1--58
 
  []
 
@@ -507,25 +533,25 @@ Non-PDF special ignored!
 Non-PDF special ignored!
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Overfull \vbox (1755.10384pt too high) has occurred while \output is active []
+Overfull \vbox (1916.30376pt too high) has occurred while \output is active []
 
 
 [2] (./writeup.aux) ) 
 Here is how much of TeX's memory you used:
- 5760 strings out of 256216
- 72680 string characters out of 1917072
- 204449 words of memory out of 1500000
- 8981 multiletter control sequences out of 10000+200000
+ 5770 strings out of 256216
+ 72787 string characters out of 1917072
+ 211482 words of memory out of 1500000
+ 8985 multiletter control sequences out of 10000+200000
  6252 words of font info for 25 fonts, out of 1200000 for 2000
  645 hyphenation exceptions out of 8191
- 30i,8n,37p,338b,337s stack positions out of 5000i,500n,6000p,200000b,15000s
+ 30i,8n,37p,777b,337s stack positions out of 5000i,500n,6000p,200000b,15000s
 </usr/share/texmf/fonts/type1/bluesky/cm/cmbx10.pfb></usr/
 share/texmf/fonts/type1/bluesky/cm/cmbx12.pfb></usr/share/texmf/fonts/type1/blu
 esky/cm/cmmi10.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmmi7.pfb></usr/sha
 re/texmf/fonts/type1/bluesky/cm/cmr10.pfb>
-Output written on writeup.pdf (2 pages, 95558 bytes).
+Output written on writeup.pdf (2 pages, 102757 bytes).
 PDF statistics:
- 232 PDF objects out of 1000 (max. 8388607)
+ 255 PDF objects out of 1000 (max. 8388607)
  6 named destinations out of 1000 (max. 131072)
- 17 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
 

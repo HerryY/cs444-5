@@ -322,6 +322,8 @@
 313	common	finit_module		sys_finit_module
 314	common	sched_setattr		sys_sched_setattr
 315	common	sched_getattr		sys_sched_getattr
+316 common  slob_free           sys_slob_free
+317 common  slob_used           sys_slob_used
 
 #
 # x32-specific system call numbers start at 512 to avoid cache impact
@@ -360,3 +362,5 @@
 542	x32	getsockopt		compat_sys_getsockopt
 543	x32	io_setup		compat_sys_io_setup
 544	x32	io_submit		compat_sys_io_submit
+545 x32 slob_free       sys_slob_free
+546 x32 slob_used       sys_slob_used

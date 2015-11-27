@@ -89,6 +89,7 @@ typedef s32 slobidx_t;
 #endif
 
 unsigned long page_count_slob = 0; 
+long free_units = 0;
 
 struct slob_block {
 	slobidx_t units;
@@ -273,6 +274,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
     struct page *sp_other = NULL;
 	struct list_head *prev;
 	struct list_head *slob_list;
+    struct list_head *temp;
 	slob_t *b = NULL;
 	unsigned long flags;
 
@@ -311,6 +313,22 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
     {
         b = slob_page_alloc(sp_other, size, align);
     }
+
+    //Loop through each linked list to find free space
+    temp = &free_slob_small;
+    list_for_each_entry(sp, temp, list) {
+        free_units += sp->units;
+    }
+    temp = &free_slob_medium;
+    list_for_each_entry(sp, temp, list) { 
+        free_units += sp->units;
+    }
+    temp = &free_slob_large;
+    list_for_each_entry(sp, temp, list) {
+        free_units += sp->units;
+
+    }
+
 
 	spin_unlock_irqrestore(&slob_lock, flags);
 
@@ -650,34 +668,7 @@ asmlinkage long sys_slob_used(void) {
 
 asmlinkage long sys_slob_free(void) {
 
-    long slob_total_free;
-    struct slob_page *sp;
-    struct list_head *slob_list;
-
-    //Need to iterate through all linked lists and add up free space
-    
-    //Smallest first
-    slob_list = &free_slob_small;
-    list_for_each_entry(sp, slob_list)
-    {
-       slob_total_free += sp->units;
-    }
-
-    //Medium
-    slop_list = &free_slob_medium;
-    list_for_each_entry(sp, slob_list)
-    {
-        slob_total_free += sp->units;
-    }
-
-    //largest
-    slob_lis = &free_slob_large;
-    list_for_each_entry(sp, slob_list)
-    {
-        slob_total_free += sp->units;
-    }
-
-    return slob_total_free;
+    return free_units;
 }
 
 void __init kmem_cache_init(void)

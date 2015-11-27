@@ -89,7 +89,7 @@ typedef s32 slobidx_t;
 #endif
 
 unsigned long page_count_slob = 0; 
-long free_units = 0;
+unsigned long free_units = 0;
 
 struct slob_block {
 	slobidx_t units;
@@ -277,6 +277,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
     struct list_head *temp;
 	slob_t *b = NULL;
 	unsigned long flags;
+    free_units = 0;
 
 	if (size < SLOB_BREAK1)
 		slob_list = &free_slob_small;

@@ -18,12 +18,6 @@
 {\Large CS444 Fall 2015\par}
 \end{titlepage}
 
-\begin{abstract}
-\begin{singlespace}
-This is the abstract
-\end{singlespace}
-\end{abstract}
-
 \section{Processes and Threads}
 \begin{singlespace}
     A process is the execution of a program and a fundamental feature     of an operating system. Operating system handles these programs at many levels, including creation, execution, scheduling and threading. Process are given memory and other various metadata attributes so the kernel can reference it.\\ 
@@ -40,12 +34,13 @@ Once a thread has finished its allotted time executing, or is finished, the CPU 
     Priority is based off of two factors: the priority class given at creation time given to the process, and the individual thread priority. Priority can also be increased (or less commonly, decreased) for a number of reasons. Most of these are related to normal scheduler and I/O reasons. However, since Windows is such a GUI-focused operating system, some of the built in reasons are related to the GUI. For example, a process get a priority boost after the GUI thread wakes up and starts execution. Another example is that CPU intensive programs, like video games and video players gets a large boost, and even a special service dedicated to making sure that all of their respective execution requests are seamless. This is again due to the unique focus of Windows on the GUI. \\
     The main differences between processes, threads and scheduling in Windows and FreeBSD overall seem to stem from the developers that are using Windows; in general, many of the ideas and constructs are reimplemented to fit the Windows philosophy. In this case, the focus on the graphical utilities and the want to simplify established terminology and ideas seems to have motivated Microsoft's changes. The reason the scheduler is the same is because the priority-based scheduler has been a tried and true method of mostly-fair scheduling.\\
 
-\lstinputlisting{example.c} 
 \end{singlespace}
 
 \section{This is a section}
 \begin{singlespace}
 This is single space This is single space This is single space This is single space This is single space This is single space This is single space This is single space  This is single space This is single space This is single space This is single space  This is single space This is single space This is single space This is single space  This is single space This is single space This is single space This is single space  
+
+\lstinputlisting{example.c} 
 \end{singlespace}
 
 \section{This is a section}

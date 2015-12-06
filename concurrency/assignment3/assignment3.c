@@ -178,7 +178,6 @@ int main(int argc, char **argv) {
 
     struct sigaction sig;
     struct buffer_item init_item;
-    int choice;
     pthread_t thread1, thread2, thread3, thread4;
     void *delete_func = deleter;
     void *insert_func = inserter;
@@ -208,7 +207,5 @@ int main(int argc, char **argv) {
 
 
     for(;;) {
-        choice = gen_number(3, 1);
-        number = gen_number(buff.items, 1);
     }
 }

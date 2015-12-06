@@ -97,9 +97,11 @@ diff -urN old/sbd.c new/sbd.c
 +module_param(key, charp, S_IRUGO);
 +
 +#define KEY_SIZE 32
-+static char crypto_key[KEY_SIZE];
++static char *crypto_key[KEY_SIZE;
 +static int key_size = 0;
 +
++module_param(key, charp, S_IRUGO);
+>>>>>>> f934a83c1e8b359083dc7d4e8acdf7526bc03320
 +
 +struct crypto_cipher *cipher;
 +

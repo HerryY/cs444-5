@@ -55,11 +55,13 @@ module_param(request_mode, int, 0);
 //After some idle time, simulate media change
 #define INVALIDATE_DELAY 30*HZ
 
+static char *key = "hello";
+module_param(key, charp, S_IRUGO);
+
 #define KEY_SIZE 32
-static char *crypto_key = "hello";
+static char crypto_key[KEY_SIZE];
 static int key_size = 0;
 
-//module_param(key, charp, S_IRUGO);
 
 struct crypto_cipher *cipher;
 
@@ -76,8 +78,6 @@ struct sbd_dev {
 };
 
 static struct sbd_dev *Devices = NULL;
-/*
- 
 
 ssize_t key_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -100,7 +100,7 @@ ssize_t key_store(struct device *dev, struct device_attribute *attr, const char 
 }
 
 DEVICE_ATTR(key, 0600, key_show, key_store);
-*/
+
 
 
 //Handle IO request at hte lowest level
@@ -110,6 +110,21 @@ static void sbd_transfer(struct sbd_dev *dev, unsigned long sector,
     int i;
     unsigned long offset = sector*KERNEL_SECTOR_SIZE;
     unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
+
+    //For some reason, the key wasn't being set so I'm forcing it here
+    if(key_size == 0)
+    {
+        crypto_cipher_clear_flags(cipher, ~0);
+        crypto_cipher_setkey(cipher, key, strlen(key));
+        key_size = strlen(key);
+        printk("Key size %d\n", key_size);
+        
+    }
+    else
+    {
+        crypto_cipher_clear_flags(cipher, ~0);
+        crypto_cipher_setkey(cipher, crypto_key, key_size);
+    }
 
     if((offset + nbytes) > dev->size)
     {
@@ -162,17 +177,21 @@ static void sbd_request(struct request_queue *q) {
     struct request *req;
     int ret;
 
+    //Get next incomplete request in the queue
     req = blk_fetch_request(q);
     while (req) {
         struct sbd_dev *dev = req->rq_disk->private_data;
+        //Make sure its a filesystem request   
         if (req->cmd_type != REQ_TYPE_FS) {
             printk (KERN_NOTICE "Skip non-fs request\n");
             ret = -EIO;
             goto done;
         }
+        //Pass the request off the transfer
         sbd_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req), bio_data(req->bio), rq_data_dir(req));
         ret = 0;
     done:
+        //Error handling and goingto the next request
         if(!__blk_end_request_cur(req, ret)){
             req = blk_fetch_request(q);
         }
@@ -252,20 +271,30 @@ static void sbd_make_request(struct request_queue *q, struct bio *bio) {
 }
 
 //Open the device
+//
+//This function basically keeps track of the number of users using the device
 static int sbd_open(struct block_device *bdev, fmode_t mode) {
     
     struct sbd_dev *dev = bdev->bd_disk->private_data;
 
+    //Remove the media timer
     del_timer_sync(&dev->timer);
+
+    //Get the lock on the drive
     spin_lock(&dev->lock);
     if(!dev->users)
+        //Check if media has changed
         check_disk_change(bdev);
+    //Increase users
     dev->users++;
+    //Release lock
     spin_unlock(&dev->lock);
     return 0;
 }
 
 //Release the device
+//
+//Inverse of open, decrements users
 static void sbd_release(struct gendisk *disk, fmode_t mode) {
 
     struct sbd_dev *dev = disk->private_data;
@@ -273,6 +302,7 @@ static void sbd_release(struct gendisk *disk, fmode_t mode) {
     spin_lock(&dev->lock);
     dev->users--;
 
+    //Start the timer to invaldidate teh drive if no one is using it
     if(!dev->users) {
         dev->timer.expires = jiffies + INVALIDATE_DELAY;
         add_timer(&dev->timer);
@@ -316,6 +346,9 @@ void sbd_invalidate(unsigned long ldev){
 }
 
 //Implementation of ioctl()
+//
+//Handles request for drives geometry
+//Even though this is virtul, things like fdisk need this for stuff like partitioning
 int sbd_ioctl (struct block_device *bdev, fmode_t mode,
                  unsigned int cmd, unsigned long arg){
 
@@ -423,10 +456,8 @@ static int __init sbd_init(void) {
     int i;
 
     //Initialize the cipher as an aes cipher with default type and mask
-    cipher = crypto_alloc_cipher("aes", 0, 0);
-    crypto_cipher_clear_flags(cipher, ~0);
+    cipher = crypto_alloc_cipher("aes", 0, 16);
     key_size = strlen(crypto_key);
-    crypto_cipher_setkey(cipher, crypto_key, key_size);
 
 
     sbd_major = register_blkdev(sbd_major, "sbd");
@@ -484,3 +515,5 @@ static void sbd_exit(void) {
 
 module_init(sbd_init);
 module_exit(sbd_exit);
+
+

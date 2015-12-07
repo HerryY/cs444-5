@@ -54,9 +54,19 @@ While the concept of pages and the implementation of virtual memory is similar b
 
 \end{singlespace}
 
-\section{This is a section}
+\section{Cryptography}
 \begin{singlespace}
-This is single space This is single space This is single space This is single space This is single space This is single space This is single space This is single space  This is single space This is single space This is single space This is single space  This is single space This is single space This is single space This is single space  This is single space This is single space This is single space This is single space  
+    Cryptography is an important part of digital security. Because of this, most kernels, including FreeBSD and Windows, implement a cryptographic API for use within the kernel.\\
+    FreeSD calls their crypto API the ‘crypto subsystem’. It supports both symmetric and asymmetric cryptography, but symmetrical encryption is more common in the case of the kernel. There are two sets of APIs that make up the subsystems: the software and the device driver APIs. \cite{freebsdch5}\\
+    The model of using the crypto subsystem involves a session where the requesting process starts a session, puts the work it wants done on a queue and then waits for the work to be done and returned. This is shown in the following code example. \\
+\lstinputlisting{bsdcrypto.c}
+    Windows also has a cryptographic API within the kernel. While it provides support for cryptographic service providers, or CSPs, only the Microsoft RSA base provider comes in the kernel. Each CSP can implement the API differently, but all have a similar architecture. Each CSP has a key database which stores all the key information for users and applications. \\
+    The various API calls allow users to encrypt and digitally sign files. It also allows for generating keys, using hashes and other standard cryptographic functionality. There is not much special here other than the use of the key database to store everything.\cite{msdn}\\
+    Again, this is most likely due to enterprise nature of Windows, where architectures like this make sense because Microsoft builds and maintains the features. If FreeBSD had a similar design, it would be difficult for users to maintain such a database most likely. \\
+    The API itself also doesn’t worry about sessions and requests as long as the context handle is present in Windows. This shows how Windows treads handles as a special thing; it’s very focused on files and file handles as a way of protection and addressing it.\\
+    The following code exemplifies and highlights the differences between the Windows and FreeBSD CryptoAPI calls.\\ 
+\lstinputlisting{wincrypto.c}
+    Overall, despite differences in the models used, the two APIs do the same thing. Cryptography is such an essential component of modern computing that it needs to be as portable as possible. This is why standards such a RSA exist. As for the differences between the implementations, as stated above Microsoft implemented theirs differently because the could, and it worked in the context of their kernel and their programming paradigm. FreeBSD did it their way due to the architecture their kernel supported and the need for it to be as generalized as possible. \\
 \end{singlespace}
 
 \newpage
